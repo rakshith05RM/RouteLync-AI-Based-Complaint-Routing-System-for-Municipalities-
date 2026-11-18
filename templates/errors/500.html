@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Something went wrong{% endblock %}
+{% block content %}
+<div class="rp-error">
+  <div class="rp-error-inner">
+    <p class="rp-errcode">500</p>
+    <h1>Something went wrong</h1>
+    <p>The problem has been logged. Please try again in a moment.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+      <a class="btn btn-rp" href="/"><i class="ic ic-home" aria-hidden="true"></i>Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

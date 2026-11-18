@@ -1,0 +1,60 @@
+{% extends "officer/base_officer.html" %}
+{% block title %}Complaints by location{% endblock %}
+{% block heading %}Complaints by location{% endblock %}
+{% block officer_content %}
+<nav aria-label="Location path">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'officer:locations' %}">{{ department.name }}</a></li>
+    {% if area %}<li class="breadcrumb-item"><a href="{% url 'officer:locations' %}?area={{ area.pk }}">{{ area.name }}</a></li>{% endif %}
+    {% if ward %}<li class="breadcrumb-item"><a href="{% url 'officer:locations' %}?area={{ area.pk }}&amp;ward={{ ward.pk }}">Ward {{ ward.number }}</a></li>{% endif %}
+    {% if street %}<li class="breadcrumb-item active" aria-current="page">{{ street }}</li>{% endif %}
+  </ol>
+</nav>
+
+{% if street %}
+  <div class="rp-card">
+    {% if complaints %}
+    <div class="table-responsive"><table class="table align-middle mb-0 rp-table rp-table-stack">
+      <thead><tr><th>ID</th><th>Issue</th><th>Priority</th><th>Status</th><th>SLA</th></tr></thead>
+      <tbody>
+      {% for complaint in complaints %}
+        <tr>
+          <td class="rp-cell-main"><a class="rp-ref" href="{% url 'officer:detail' complaint.pk %}">{{ complaint.reference }}</a></td>
+          <td data-label="Issue"><span class="rp-table-title">{{ complaint.title }}</span></td>
+          <td data-label="Priority">{% include "partials/priority_badge.html" %}</td>
+          <td data-label="Status">{% include "partials/status_badge_staff.html" %}</td>
+          <td data-label="SLA" class="small">{% with s=complaint.sla_state %}<span class="{% if s.is_overdue %}text-danger fw-semibold{% endif %}">{{ s.label }}</span>{% endwith %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}<p class="p-4 mb-0 text-secondary">No active complaints on this street.</p>{% endif %}
+  </div>
+  <p class="mt-3 rp-backlink"><a href="{% url 'officer:dashboard' %}?area={{ area.pk }}&amp;ward={{ ward.pk }}&amp;street={{ street|urlencode }}">Open these in the full complaints list <i class="ic ic-arrow-right ic-sm" aria-hidden="true"></i></a></p>
+{% else %}
+  <div class="rp-card">
+    {% if rows %}
+    <div class="table-responsive"><table class="table align-middle mb-0 rp-table">
+      <thead><tr>
+        <th>{% if level == "area" %}Area{% elif level == "ward" %}Ward{% else %}Street{% endif %}</th>
+        <th class="text-end">Active complaints</th><th class="text-end">Overdue</th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>
+            <i class="ic ic-pin text-secondary me-1" aria-hidden="true"></i>{% if level == "area" %}<a href="?area={{ row.key }}">{{ row.label }}</a>
+            {% elif level == "ward" %}<a href="?area={{ area.pk }}&amp;ward={{ row.key }}">Ward {{ row.label }}</a>
+            {% else %}<a href="?area={{ area.pk }}&amp;ward={{ ward.pk }}&amp;street={{ row.key|urlencode }}">{{ row.label }}</a>{% endif %}
+          </td>
+          <td class="text-end">{{ row.active }}</td>
+          <td class="text-end {% if row.overdue %}text-danger fw-semibold{% endif %}">{{ row.overdue }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="p-4 mb-0 text-secondary">There are no active complaints at this level.</p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

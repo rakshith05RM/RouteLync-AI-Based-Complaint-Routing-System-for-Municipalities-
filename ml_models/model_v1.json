@@ -1,0 +1,1274 @@
+{
+  "version": 1,
+  "labels": [
+    "ADVERTISEMENTS",
+    "ANIMAL_CONTROL",
+    "CIVIL_REGISTRATION",
+    "EDUCATION",
+    "ELECTRICITY",
+    "ENVIRONMENT",
+    "FIRE",
+    "HEALTH",
+    "PARKS_GARDENS",
+    "PROPERTY_TAX",
+    "ROADS",
+    "SANITATION",
+    "SOCIAL_WELFARE",
+    "TOWN_PLANNING",
+    "TRADE_LICENCE",
+    "TRAFFIC_PARKING",
+    "WATER_SUPPLY"
+  ],
+  "best_params": {
+    "nb__alpha": "0.03",
+    "tfidf__min_df": "1",
+    "tfidf__ngram_range": "(1, 2)"
+  },
+  "test": {
+    "accuracy": 0.9950980392156863,
+    "precision_macro": 0.9953592092574736,
+    "recall_macro": 0.9950980392156863,
+    "f1_macro": 0.9951193955496384,
+    "per_class": {
+      "ADVERTISEMENTS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "ANIMAL_CONTROL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "CIVIL_REGISTRATION": {
+        "precision": 0.9375,
+        "recall": 1.0,
+        "f1": 0.967741935483871,
+        "support": 60
+      },
+      "EDUCATION": {
+        "precision": 0.9836065573770492,
+        "recall": 1.0,
+        "f1": 0.9917355371900827,
+        "support": 60
+      },
+      "ELECTRICITY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "ENVIRONMENT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "FIRE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "HEALTH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "PARKS_GARDENS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "PROPERTY_TAX": {
+        "precision": 1.0,
+        "recall": 0.9833333333333333,
+        "f1": 0.9915966386554622,
+        "support": 60
+      },
+      "ROADS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "SANITATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "SOCIAL_WELFARE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "TOWN_PLANNING": {
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.9743589743589743,
+        "support": 60
+      },
+      "TRADE_LICENCE": {
+        "precision": 1.0,
+        "recall": 0.9833333333333333,
+        "f1": 0.9915966386554622,
+        "support": 60
+      },
+      "TRAFFIC_PARKING": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "WATER_SUPPLY": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      }
+    },
+    "confusion_matrix": [
+      [
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        59,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        57,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        59,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        60
+      ]
+    ],
+    "labels": [
+      "ADVERTISEMENTS",
+      "ANIMAL_CONTROL",
+      "CIVIL_REGISTRATION",
+      "EDUCATION",
+      "ELECTRICITY",
+      "ENVIRONMENT",
+      "FIRE",
+      "HEALTH",
+      "PARKS_GARDENS",
+      "PROPERTY_TAX",
+      "ROADS",
+      "SANITATION",
+      "SOCIAL_WELFARE",
+      "TOWN_PLANNING",
+      "TRADE_LICENCE",
+      "TRAFFIC_PARKING",
+      "WATER_SUPPLY"
+    ]
+  },
+  "challenge": {
+    "accuracy": 0.8505154639175257,
+    "precision_macro": 0.8554915192458444,
+    "recall_macro": 0.8602941176470589,
+    "f1_macro": 0.8524069755493904,
+    "per_class": {
+      "ADVERTISEMENTS": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1": 0.9090909090909091,
+        "support": 10
+      },
+      "ANIMAL_CONTROL": {
+        "precision": 0.9,
+        "recall": 0.9,
+        "f1": 0.9,
+        "support": 10
+      },
+      "CIVIL_REGISTRATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "EDUCATION": {
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "f1": 0.9523809523809523,
+        "support": 10
+      },
+      "ELECTRICITY": {
+        "precision": 0.875,
+        "recall": 0.875,
+        "f1": 0.875,
+        "support": 16
+      },
+      "ENVIRONMENT": {
+        "precision": 0.8181818181818182,
+        "recall": 0.9,
+        "f1": 0.8571428571428571,
+        "support": 10
+      },
+      "FIRE": {
+        "precision": 0.75,
+        "recall": 0.9,
+        "f1": 0.8181818181818182,
+        "support": 10
+      },
+      "HEALTH": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "support": 10
+      },
+      "PARKS_GARDENS": {
+        "precision": 0.875,
+        "recall": 0.7,
+        "f1": 0.7777777777777778,
+        "support": 10
+      },
+      "PROPERTY_TAX": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1": 0.9090909090909091,
+        "support": 10
+      },
+      "ROADS": {
+        "precision": 0.9166666666666666,
+        "recall": 0.6875,
+        "f1": 0.7857142857142857,
+        "support": 16
+      },
+      "SANITATION": {
+        "precision": 0.7142857142857143,
+        "recall": 0.625,
+        "f1": 0.6666666666666666,
+        "support": 16
+      },
+      "SOCIAL_WELFARE": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1": 0.9090909090909091,
+        "support": 10
+      },
+      "TOWN_PLANNING": {
+        "precision": 0.75,
+        "recall": 0.9,
+        "f1": 0.8181818181818182,
+        "support": 10
+      },
+      "TRADE_LICENCE": {
+        "precision": 0.7777777777777778,
+        "recall": 0.7,
+        "f1": 0.7368421052631579,
+        "support": 10
+      },
+      "TRAFFIC_PARKING": {
+        "precision": 0.875,
+        "recall": 0.7,
+        "f1": 0.7777777777777778,
+        "support": 10
+      },
+      "WATER_SUPPLY": {
+        "precision": 0.8823529411764706,
+        "recall": 0.9375,
+        "f1": 0.9090909090909091,
+        "support": 16
+      }
+    },
+    "confusion_matrix": [
+      [
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        14,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        7,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        11,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        10,
+        0,
+        0,
+        0,
+        1,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        10,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        7,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        15
+      ]
+    ],
+    "labels": [
+      "ADVERTISEMENTS",
+      "ANIMAL_CONTROL",
+      "CIVIL_REGISTRATION",
+      "EDUCATION",
+      "ELECTRICITY",
+      "ENVIRONMENT",
+      "FIRE",
+      "HEALTH",
+      "PARKS_GARDENS",
+      "PROPERTY_TAX",
+      "ROADS",
+      "SANITATION",
+      "SOCIAL_WELFARE",
+      "TOWN_PLANNING",
+      "TRADE_LICENCE",
+      "TRAFFIC_PARKING",
+      "WATER_SUPPLY"
+    ],
+    "by_difficulty": {
+      "hard": {
+        "n": 40,
+        "accuracy": 0.75
+      },
+      "normal": {
+        "n": 154,
+        "accuracy": 0.8766233766233766
+      }
+    },
+    "threshold_table": [
+      {
+        "threshold": 0.5,
+        "auto_routed_share": 0.8608247422680413,
+        "auto_routed_accuracy": 0.9221556886227545,
+        "n": 194
+      },
+      {
+        "threshold": 0.6,
+        "auto_routed_share": 0.7783505154639175,
+        "auto_routed_accuracy": 0.9536423841059603,
+        "n": 194
+      },
+      {
+        "threshold": 0.7,
+        "auto_routed_share": 0.7268041237113402,
+        "auto_routed_accuracy": 0.9716312056737588,
+        "n": 194
+      },
+      {
+        "threshold": 0.8,
+        "auto_routed_share": 0.6855670103092784,
+        "auto_routed_accuracy": 0.9774436090225563,
+        "n": 194
+      },
+      {
+        "threshold": 0.9,
+        "auto_routed_share": 0.5927835051546392,
+        "auto_routed_accuracy": 0.991304347826087,
+        "n": 194
+      }
+    ],
+    "misclassified": [
+      {
+        "text": "Light at the corner has been dead since Diwali, nobody has come to look",
+        "true": "ELECTRICITY",
+        "predicted": "SANITATION",
+        "confidence": 0.5
+      },
+      {
+        "text": "A pole fell on the road after last night's wind and the wires are lying across it",
+        "true": "ELECTRICITY",
+        "predicted": "PARKS_GARDENS",
+        "confidence": 0.541
+      },
+      {
+        "text": "We have not received our water for three mornings in a row",
+        "true": "WATER_SUPPLY",
+        "predicted": "SOCIAL_WELFARE",
+        "confidence": 0.483
+      },
+      {
+        "text": "Gutter water comes into the house whenever it rains",
+        "true": "SANITATION",
+        "predicted": "WATER_SUPPLY",
+        "confidence": 0.784
+      },
+      {
+        "text": "The drain in front of the shop is choked with plastic and smells awful",
+        "true": "SANITATION",
+        "predicted": "ENVIRONMENT",
+        "confidence": 0.547
+      },
+      {
+        "text": "Waste is blocking the drain and the road gets water logged",
+        "true": "SANITATION",
+        "predicted": "WATER_SUPPLY",
+        "confidence": 0.586
+      },
+      {
+        "text": "The sweeper has not come for two weeks and dry leaves cover the whole street",
+        "true": "SANITATION",
+        "predicted": "FIRE",
+        "confidence": 0.385
+      },
+      {
+        "text": "The carcass of a cow is rotting beside the road",
+        "true": "SANITATION",
+        "predicted": "ANIMAL_CONTROL",
+        "confidence": 0.305
+      },
+      {
+        "text": "The garbage vehicle skips our apartment every single day",
+        "true": "SANITATION",
+        "predicted": "TRAFFIC_PARKING",
+        "confidence": 0.852
+      },
+      {
+        "text": "There is a deep hole outside the school gate and a child fell into it",
+        "true": "ROADS",
+        "predicted": "TRADE_LICENCE",
+        "confidence": 0.501
+      },
+      {
+        "text": "Cracks are running along the entire stretch of the new road",
+        "true": "ROADS",
+        "predicted": "TOWN_PLANNING",
+        "confidence": 0.676
+      },
+      {
+        "text": "The metal cover of the drain chamber is missing and a scooter got stuck in it",
+        "true": "ROADS",
+        "predicted": "FIRE",
+        "confidence": 0.184
+      },
+      {
+        "text": "There is no marking on the crossing in front of the hospital",
+        "true": "ROADS",
+        "predicted": "TRADE_LICENCE",
+        "confidence": 0.649
+      },
+      {
+        "text": "A road signboard is lying on the ground since the storm",
+        "true": "ROADS",
+        "predicted": "ELECTRICITY",
+        "confidence": 0.427
+      },
+      {
+        "text": "The rain tree on our road fell last night and is blocking the whole lane",
+        "true": "PARKS_GARDENS",
+        "predicted": "ELECTRICITY",
+        "confidence": 0.455
+      },
+      {
+        "text": "Benches in the park near the lake are broken so senior citizens cannot sit",
+        "true": "PARKS_GARDENS",
+        "predicted": "ENVIRONMENT",
+        "confidence": 0.235
+      },
+      {
+        "text": "The walking path inside the park is full of mud after the rain",
+        "true": "PARKS_GARDENS",
+        "predicted": "TOWN_PLANNING",
+        "confidence": 0.287
+      },
+      {
+        "text": "The dispensary near the bus stand has been shut for a week and old people have nowhere to go",
+        "true": "HEALTH",
+        "predicted": "SOCIAL_WELFARE",
+        "confidence": 0.22
+      },
+      {
+        "text": "People in our slum have loose motions since two days and the water seems to be the reason",
+        "true": "HEALTH",
+        "predicted": "ROADS",
+        "confidence": 0.323
+      },
+      {
+        "text": "A shop has pushed its wall onto the lane and the lane has become narrow",
+        "true": "TOWN_PLANNING",
+        "predicted": "FIRE",
+        "confidence": 0.371
+      },
+      {
+        "text": "The covered market roof leaks and the traders cannot keep their goods",
+        "true": "TRADE_LICENCE",
+        "predicted": "EDUCATION",
+        "confidence": 0.344
+      },
+      {
+        "text": "The fee they asked for the licence is much higher than the notified amount",
+        "true": "TRADE_LICENCE",
+        "predicted": "PROPERTY_TAX",
+        "confidence": 0.639
+      },
+      {
+        "text": "The Sunday market spills onto the main road every week and nobody regulates it",
+        "true": "TRADE_LICENCE",
+        "predicted": "SANITATION",
+        "confidence": 0.964
+      },
+      {
+        "text": "There is a strong smell of gas from the restaurant kitchen next door",
+        "true": "FIRE",
+        "predicted": "TOWN_PLANNING",
+        "confidence": 0.423
+      },
+      {
+        "text": "A pig family has settled near the open plot behind our flats",
+        "true": "ANIMAL_CONTROL",
+        "predicted": "SANITATION",
+        "confidence": 0.096
+      },
+      {
+        "text": "The signal at the main junction has been dead for three days and it is chaos",
+        "true": "TRAFFIC_PARKING",
+        "predicted": "ADVERTISEMENTS",
+        "confidence": 0.466
+      },
+      {
+        "text": "The bus shelter roof has fallen and passengers stand in the rain",
+        "true": "TRAFFIC_PARKING",
+        "predicted": "ADVERTISEMENTS",
+        "confidence": 0.502
+      },
+      {
+        "text": "The paid parking guys are charging double the fixed rate",
+        "true": "TRAFFIC_PARKING",
+        "predicted": "PROPERTY_TAX",
+        "confidence": 0.854
+      },
+      {
+        "text": "Builders are dumping debris into the lake bed in the evenings",
+        "true": "ENVIRONMENT",
+        "predicted": "SANITATION",
+        "confidence": 0.435
+      }
+    ]
+  },
+  "threshold": {
+    "selected_threshold": 0.5,
+    "target_precision": 0.95,
+    "target_met_on_training_oof": true,
+    "min_threshold": 0.5,
+    "out_of_fold_training": [
+      {
+        "threshold": 0.5,
+        "auto_routed_share": 0.9928869266617611,
+        "auto_routed_accuracy": 0.995800395256917,
+        "n": 4077
+      },
+      {
+        "threshold": 0.6,
+        "auto_routed_share": 0.9862644101054697,
+        "auto_routed_accuracy": 0.9977617508082567,
+        "n": 4077
+      },
+      {
+        "threshold": 0.7,
+        "auto_routed_share": 0.9769438312484671,
+        "auto_routed_accuracy": 0.9994978659302034,
+        "n": 4077
+      },
+      {
+        "threshold": 0.8,
+        "auto_routed_share": 0.9644346333088055,
+        "auto_routed_accuracy": 0.9997456765005086,
+        "n": 4077
+      },
+      {
+        "threshold": 0.9,
+        "auto_routed_share": 0.9296051017905322,
+        "auto_routed_accuracy": 0.9997361477572559,
+        "n": 4077
+      }
+    ],
+    "test": [
+      {
+        "threshold": 0.5,
+        "auto_routed_share": 0.9980392156862745,
+        "auto_routed_accuracy": 0.9950884086444007,
+        "n": 1020
+      },
+      {
+        "threshold": 0.6,
+        "auto_routed_share": 0.9911764705882353,
+        "auto_routed_accuracy": 0.9980217606330366,
+        "n": 1020
+      },
+      {
+        "threshold": 0.7,
+        "auto_routed_share": 0.984313725490196,
+        "auto_routed_accuracy": 1.0,
+        "n": 1020
+      },
+      {
+        "threshold": 0.8,
+        "auto_routed_share": 0.9745098039215686,
+        "auto_routed_accuracy": 1.0,
+        "n": 1020
+      },
+      {
+        "threshold": 0.9,
+        "auto_routed_share": 0.9529411764705882,
+        "auto_routed_accuracy": 1.0,
+        "n": 1020
+      }
+    ],
+    "challenge": [
+      {
+        "threshold": 0.5,
+        "auto_routed_share": 0.8608247422680413,
+        "auto_routed_accuracy": 0.9221556886227545,
+        "n": 194
+      },
+      {
+        "threshold": 0.6,
+        "auto_routed_share": 0.7783505154639175,
+        "auto_routed_accuracy": 0.9536423841059603,
+        "n": 194
+      },
+      {
+        "threshold": 0.7,
+        "auto_routed_share": 0.7268041237113402,
+        "auto_routed_accuracy": 0.9716312056737588,
+        "n": 194
+      },
+      {
+        "threshold": 0.8,
+        "auto_routed_share": 0.6855670103092784,
+        "auto_routed_accuracy": 0.9774436090225563,
+        "n": 194
+      },
+      {
+        "threshold": 0.9,
+        "auto_routed_share": 0.5927835051546392,
+        "auto_routed_accuracy": 0.991304347826087,
+        "n": 194
+      }
+    ],
+    "at_selected_threshold": {
+      "test": {
+        "threshold": 0.5,
+        "auto_routed_share": 0.9980392156862745,
+        "auto_routed_accuracy": 0.9950884086444007,
+        "n": 1020
+      },
+      "challenge": {
+        "threshold": 0.5,
+        "auto_routed_share": 0.8608247422680413,
+        "auto_routed_accuracy": 0.9221556886227545,
+        "n": 194
+      }
+    }
+  },
+  "dataset_size": 5097,
+  "train_size": 4077,
+  "test_size": 1020,
+  "random_state": 42,
+  "sklearn_pipeline": "TfidfVectorizer -> MultinomialNB"
+}

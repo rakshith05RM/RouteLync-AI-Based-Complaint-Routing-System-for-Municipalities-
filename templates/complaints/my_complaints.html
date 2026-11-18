@@ -1,0 +1,68 @@
+{% extends "base_app.html" %}
+{% block title %}My complaints{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <p class="rp-eyebrow">Citizen portal</p>
+      <h1 class="rp-title">My complaints</h1>
+      <p class="rp-sub">Everything you have reported, and where each complaint stands.</p>
+    </div>
+    <div class="rp-page-actions"><a class="btn btn-rp" href="{% url 'complaints:new' %}"><i class="ic ic-plus" aria-hidden="true"></i>Report a problem</a></div>
+  </div>
+
+  {% if attempts %}
+  <section class="rp-card p-4 mb-4 rp-callout rp-callout-warn" aria-labelledby="not-submitted">
+    <h2 id="not-submitted" class="rp-section"><i class="ic ic-alert-triangle" aria-hidden="true"></i>Not submitted</h2>
+    <p class="small text-secondary">These were not accepted, so <strong>no complaint was created</strong>. Correct the description and submit again.</p>
+    {% for a in attempts %}
+    <div class="{% if not forloop.last %}pb-3 mb-3 border-bottom{% endif %}">
+      <div class="d-flex flex-wrap justify-content-between gap-2">
+        <div><span class="fw-semibold">{{ a.title|default:"Untitled complaint" }}</span> <span class="badge rp-await">{{ a.reason_label }}</span>
+          <div class="small text-secondary">{{ a.updated_at|date:"d M Y, H:i" }}</div></div>
+        <div class="d-flex gap-2 align-items-start">
+          <a class="btn btn-rp btn-sm" href="{% url 'complaints:new' %}?attempt={{ a.pk }}">Edit and submit again</a>
+          <form method="post" action="{% url 'complaints:attempt_discard' a.pk %}" data-confirm="Remove this draft?">{% csrf_token %}<button class="btn btn-outline-rp btn-sm" type="submit">Remove</button></form>
+        </div>
+      </div>
+      <p class="mb-1 mt-2">{{ a.message }}</p>
+      {% if a.description %}<p class="small text-secondary mb-0">&ldquo;{{ a.description|truncatechars:140 }}&rdquo;</p>{% endif %}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if complaints %}
+  <div class="rp-card">
+    <div class="table-responsive">
+      <table class="table rp-table rp-table-stack align-middle mb-0">
+        <thead><tr><th>ID</th><th>Issue</th><th>Location</th><th>Status</th><th>Submitted</th></tr></thead>
+        <tbody>
+        {% for complaint in complaints %}
+          <tr>
+            <td class="rp-cell-main"><a class="rp-ref" href="{% url 'complaints:detail' complaint.pk %}">{{ complaint.reference }}</a></td>
+            <td data-label="Issue"><span class="rp-table-title">{{ complaint.title }}</span></td>
+            <td data-label="Location">{% if complaint.location.area %}{{ complaint.location.area.name }}{% else %}{{ complaint.location.address_text|truncatechars:50 }}{% endif %}{% if complaint.location.ward %}, Ward {{ complaint.location.ward.number }}{% endif %}</td>
+            <td data-label="Status">{% include "partials/status_badge.html" %}</td>
+            <td data-label="Submitted" class="text-secondary">{{ complaint.created_at|date:"d M Y, H:i" }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% if is_paginated %}
+  <nav class="mt-3" aria-label="Pages"><ul class="pagination">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>{% endif %}
+  </ul></nav>
+  {% endif %}
+  {% else %}
+  <div class="rp-card rp-empty">
+    <div class="rp-empty-ic"><i class="ic ic-inbox" aria-hidden="true"></i></div>
+    <p class="rp-empty-title">You have not reported any problems yet.</p>
+    <p class="text-secondary">Broken streetlight, water leak, garbage, damaged road? Tell us where it is.</p>
+    <a class="btn btn-rp" href="{% url 'complaints:new' %}">Report your first problem</a>
+  </div>
+  {% endif %}
+{% endblock %}

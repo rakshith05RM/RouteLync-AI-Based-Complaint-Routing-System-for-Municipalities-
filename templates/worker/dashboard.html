@@ -1,0 +1,48 @@
+{% extends "base_app.html" %}
+{% block title %}My work{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <p class="rp-eyebrow">{{ department.name }} department</p>
+      <h1 class="rp-title">My work</h1>
+      <p class="rp-sub">Jobs assigned to you, with their location, priority and deadline.</p>
+    </div>
+  </div>
+  <ul class="nav rp-tabs" aria-label="Work lists">
+    {% for key, label, count in tabs %}
+    <li class="nav-item"><a class="nav-link {% if show == key %}active{% endif %}" href="?show={{ key }}"{% if show == key %} aria-current="page"{% endif %}>{{ label }} <span class="text-secondary">({{ count }})</span></a></li>
+    {% endfor %}
+  </ul>
+  {% if complaints %}
+  <div class="rp-card"><div class="table-responsive">
+    <table class="table align-middle mb-0 rp-table rp-table-stack">
+      <thead><tr><th>ID</th><th>Issue</th><th>Location</th><th>Priority</th><th>Status</th><th>Deadline</th></tr></thead>
+      <tbody>
+      {% for complaint in complaints %}
+        <tr>
+          <td class="text-nowrap rp-cell-main"><a class="rp-ref" href="{% url 'worker:detail' complaint.pk %}">{{ complaint.reference }}</a></td>
+          <td data-label="Issue"><span class="rp-table-title">{{ complaint.title|truncatechars:60 }}</span></td>
+          <td data-label="Location"><span>{% if complaint.location.street %}<span class="d-block">{{ complaint.location.street }}</span>{% endif %}<span class="small text-secondary">{% if complaint.location.area %}{{ complaint.location.area.name }}{% else %}{{ complaint.location.address_text|truncatechars:50 }}{% endif %}{% if complaint.location.ward %}, Ward {{ complaint.location.ward.number }}{% endif %}</span></span></td>
+          <td data-label="Priority">{% include "partials/priority_badge.html" %}</td>
+          <td data-label="Status">{% include "partials/status_badge_staff.html" %}</td>
+          <td data-label="Deadline" class="small text-nowrap">{% if complaint.sla_active %}{% with s=complaint.sla_state %}<span class="{% if s.is_overdue %}text-danger fw-semibold{% endif %}">{{ s.label }}</span>{% endwith %}{% else %}&ndash;{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div></div>
+  {% if is_paginated %}
+  <nav class="mt-3" aria-label="Pages"><ul class="pagination pagination-sm">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}
+  </ul></nav>
+  {% endif %}
+  {% else %}
+  <div class="rp-card rp-empty">
+    <div class="rp-empty-ic"><i class="ic ic-wrench" aria-hidden="true"></i></div>
+    <p class="rp-empty-title">{% if show == "todo" %}You have no work assigned right now.{% elif show == "review" %}Nothing is waiting for review.{% else %}No completed work to show.{% endif %}</p>
+    <p class="text-secondary mb-0">Jobs assigned to you by your department officer will appear here.</p>
+  </div>
+  {% endif %}
+{% endblock %}

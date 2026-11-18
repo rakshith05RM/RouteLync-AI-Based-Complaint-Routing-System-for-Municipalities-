@@ -1,0 +1,6 @@
+{
+  "name": "routelync-e2e",
+  "private": true,
+  "type": "module",
+  "dependencies": {"bootstrap": "5.3.3", "puppeteer-core": "^23.0.0", "@sparticuz/chromium": "^131.0.0"}
+}

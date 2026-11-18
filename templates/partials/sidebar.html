@@ -1,0 +1,60 @@
+{# Role-aware workspace navigation. Only links to pages that already exist; visibility follows the same role checks as before. #}
+{% with vn=request.resolver_match.view_name %}
+<aside class="rp-sidebar offcanvas offcanvas-start" tabindex="-1" id="rpSidebar" aria-labelledby="rpSidebarLabel">
+  <div class="rp-sidebar-head">
+    <a class="rp-brand" id="rpSidebarLabel" href="{% url 'core:home' %}">{% include "partials/brand_mark.html" %}<span>Route<span>Lync</span></span></a>
+    <button type="button" class="btn-close btn-close-white offcanvas-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#rpSidebar" aria-label="Close menu"></button>
+  </div>
+
+  <nav class="rp-sidebar-scroll" aria-label="Primary">
+    {% if user.is_citizen %}
+      <p class="rp-nav-label">Your complaints</p>
+      <ul class="rp-nav">
+        <li><a class="rp-nav-link" href="{% url 'complaints:my_complaints' %}"{% if vn == 'complaints:my_complaints' or vn == 'complaints:detail' %} aria-current="page"{% endif %}><i class="ic ic-list" aria-hidden="true"></i><span>My complaints</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'complaints:new' %}"{% if vn == 'complaints:new' %} aria-current="page"{% endif %}><i class="ic ic-plus" aria-hidden="true"></i><span>Report a problem</span></a></li>
+      </ul>
+    {% elif user.is_officer %}
+      <p class="rp-nav-label">{% if department %}{{ department.name }}{% else %}Department{% endif %}</p>
+      <ul class="rp-nav">
+        <li><a class="rp-nav-link" href="{% url 'officer:dashboard' %}"{% if vn == 'officer:dashboard' or vn == 'officer:detail' %} aria-current="page"{% endif %}><i class="ic ic-inbox" aria-hidden="true"></i><span>Complaints</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'officer:locations' %}"{% if vn == 'officer:locations' %} aria-current="page"{% endif %}><i class="ic ic-pin" aria-hidden="true"></i><span>By location</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'officer:map' %}"{% if vn == 'officer:map' %} aria-current="page"{% endif %}><i class="ic ic-map" aria-hidden="true"></i><span>Map</span></a></li>
+      </ul>
+    {% elif user.is_field_worker %}
+      <p class="rp-nav-label">Field work</p>
+      <ul class="rp-nav">
+        <li><a class="rp-nav-link" href="{% url 'worker:dashboard' %}"{% if vn == 'worker:dashboard' or vn == 'worker:detail' %} aria-current="page"{% endif %}><i class="ic ic-wrench" aria-hidden="true"></i><span>My work</span></a></li>
+      </ul>
+    {% elif user.is_admin_role %}
+      <p class="rp-nav-label">Operations</p>
+      <ul class="rp-nav">
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:dashboard' %}"{% if vn == 'adminpanel:dashboard' %} aria-current="page"{% endif %}><i class="ic ic-grid" aria-hidden="true"></i><span>Dashboard</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:complaints' %}"{% if vn == 'adminpanel:complaints' or vn == 'adminpanel:complaint' %} aria-current="page"{% endif %}><i class="ic ic-inbox" aria-hidden="true"></i><span>Complaints</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:queue' %}"{% if vn == 'adminpanel:queue' %} aria-current="page"{% endif %}><i class="ic ic-shield" aria-hidden="true"></i><span>Verification queue</span>{% if queue_count %}<span class="rp-bell" aria-label="{{ queue_count }} waiting">{{ queue_count }}</span>{% endif %}</a></li>
+      </ul>
+      <p class="rp-nav-label">Intelligence</p>
+      <ul class="rp-nav">
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:ai' %}"{% if vn == 'adminpanel:ai' or vn == 'adminpanel:trace' or vn == 'adminpanel:dataset' %} aria-current="page"{% endif %}><i class="ic ic-cpu" aria-hidden="true"></i><span>AI model</span></a></li>
+      </ul>
+      <p class="rp-nav-label">Administration</p>
+      <ul class="rp-nav">
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:users' %}"{% if vn == 'adminpanel:users' or vn == 'adminpanel:user_new' %} aria-current="page"{% endif %}><i class="ic ic-users" aria-hidden="true"></i><span>Users</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:departments' %}"{% if vn == 'adminpanel:departments' or vn == 'adminpanel:department_new' %} aria-current="page"{% endif %}><i class="ic ic-building" aria-hidden="true"></i><span>Departments</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:sla' %}"{% if vn == 'adminpanel:sla' %} aria-current="page"{% endif %}><i class="ic ic-clock" aria-hidden="true"></i><span>SLA settings</span></a></li>
+        <li><a class="rp-nav-link" href="{% url 'adminpanel:audit' %}"{% if vn == 'adminpanel:audit' %} aria-current="page"{% endif %}><i class="ic ic-doc" aria-hidden="true"></i><span>Audit log</span></a></li>
+      </ul>
+    {% endif %}
+
+    <p class="rp-nav-label">Account</p>
+    <ul class="rp-nav">
+      <li><a class="rp-nav-link" href="{% url 'notifications:list' %}"{% if vn == 'notifications:list' %} aria-current="page"{% endif %}><i class="ic ic-bell" aria-hidden="true"></i><span>Notifications</span>{% if unread_notification_count %}<span class="rp-bell" aria-label="{{ unread_notification_count }} unread">{{ unread_notification_count }}</span>{% endif %}</a></li>
+      <li><a class="rp-nav-link" href="{% url 'accounts:profile' %}"{% if vn == 'accounts:profile' or vn == 'accounts:password_change' %} aria-current="page"{% endif %}><i class="ic ic-user" aria-hidden="true"></i><span>Profile</span></a></li>
+      {% if user.is_staff %}<li><a class="rp-nav-link" href="/admin/"><i class="ic ic-external" aria-hidden="true"></i><span>Admin site</span></a></li>{% endif %}
+    </ul>
+  </nav>
+
+  <div class="rp-sidebar-foot">
+    <strong>{{ user.get_short_name }}</strong>{{ user.get_role_display }}
+  </div>
+</aside>
+{% endwith %}

@@ -1,0 +1,5 @@
+Hello {{ user.get_short_name }},
+
+Someone tried to register a {{ site_name }} account using this email address, but you already have one.
+If that was you, simply sign in, or use the Forgot password link if you cannot remember your password.
+If it was not you, no action is needed; your account is unchanged.

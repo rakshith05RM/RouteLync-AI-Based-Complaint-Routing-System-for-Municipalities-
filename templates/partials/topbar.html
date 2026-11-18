@@ -1,0 +1,74 @@
+<header class="rp-topbar">
+  <div class="rp-topbar-left">
+    <button class="rp-iconbtn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#rpSidebar" aria-controls="rpSidebar" aria-label="Open menu"><i class="ic ic-menu" aria-hidden="true"></i></button>
+    <a class="rp-brand d-lg-none" href="{% url 'accounts:dashboard' %}" aria-label="{{ SITE_NAME }} dashboard">{% include "partials/brand_mark.html" %}</a>
+    <span class="rp-topbar-context"><strong>{{ user.get_role_display }}</strong> workspace{% if department %} · {{ department.name }}{% endif %}</span>
+  </div>
+
+  {# Global search — desktop only, filters to relevant results for each role #}
+  <div class="rp-topbar-search" role="search">
+    <i class="ic ic-search" aria-hidden="true"></i>
+    {% if user.is_admin_role %}
+      <input type="search" placeholder="Search complaints, users…" aria-label="Global search"
+             id="rp-global-search" autocomplete="off" spellcheck="false">
+    {% elif user.is_officer %}
+      <input type="search" placeholder="Search complaints…" aria-label="Search complaints"
+             id="rp-global-search" autocomplete="off" spellcheck="false">
+    {% elif user.is_citizen %}
+      <input type="search" placeholder="Search my complaints…" aria-label="Search complaints"
+             id="rp-global-search" autocomplete="off" spellcheck="false">
+    {% else %}
+      <input type="search" placeholder="Search…" aria-label="Search"
+             id="rp-global-search" autocomplete="off" spellcheck="false">
+    {% endif %}
+    <kbd aria-hidden="true">/</kbd>
+  </div>
+
+  <div class="rp-topbar-right">
+    <a class="rp-iconbtn" href="{% url 'notifications:list' %}" aria-label="Notifications{% if unread_notification_count %}: {{ unread_notification_count }} unread{% endif %}">
+      <i class="ic ic-bell" aria-hidden="true"></i>
+      <span class="visually-hidden">Notifications</span>
+      {% if unread_notification_count %}
+        <span class="rp-dot"><span aria-hidden="true">{{ unread_notification_count }}</span><span class="visually-hidden">{{ unread_notification_count }} unread</span></span>
+      {% endif %}
+    </a>
+    <div class="dropdown">
+      <button class="rp-usermenu dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="visually-hidden">Account menu:</span>
+        <span class="rp-avatar" aria-hidden="true">{{ user.get_short_name|slice:":1"|upper }}</span>
+        <span class="rp-usermenu-text">
+          <span>{{ user.get_short_name }}</span>
+          <span class="rp-role">{{ user.get_role_display }}</span>
+        </span>
+        <i class="ic ic-chev-down ic-sm text-secondary" aria-hidden="true"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <div class="dropdown-header pb-2">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="rp-avatar" aria-hidden="true" style="width:2.5rem;height:2.5rem;font-size:1rem">{{ user.get_short_name|slice:":1"|upper }}</span>
+              <div>
+                <div class="fw-semibold text-body" style="font-size:.9rem">{{ user.get_short_name }}</div>
+                <div class="small text-secondary" style="font-size:.78rem">{{ user.get_role_display }}</div>
+              </div>
+            </div>
+            <div class="text-secondary" style="font-size:.78rem;word-break:break-all">{{ user.email }}</div>
+          </div>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}"><i class="ic ic-home" aria-hidden="true"></i>Dashboard</a></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="ic ic-user" aria-hidden="true"></i>Profile &amp; Settings</a></li>
+        <li><a class="dropdown-item" href="{% url 'notifications:list' %}"><i class="ic ic-bell" aria-hidden="true"></i>Notifications{% if unread_notification_count %}<span class="rp-bell ms-auto">{{ unread_notification_count }}</span>{% endif %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="ic ic-key" aria-hidden="true"></i>Change password</a></li>
+        {% if user.is_staff %}<li><a class="dropdown-item" href="/admin/"><i class="ic ic-external" aria-hidden="true"></i>Admin site</a></li>{% endif %}
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-item rp-danger"><i class="ic ic-logout" aria-hidden="true"></i>Log out</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>

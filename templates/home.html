@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Report civic problems{% endblock %}
+{% block body_class %}rp-public rp-home d-flex flex-column min-vh-100{% endblock %}
+
+{% block content %}
+<section class="rp-hero">
+  <div class="container-fluid px-0">
+    <div class="rp-hero-stage">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <span class="rp-pill"><span class="rp-chip-ic"><i class="ic ic-spark" aria-hidden="true"></i></span>A thoughtful new way to care for your city</span>
+          <h1 class="rp-display">A clearer route<br><em>from report to resolution.</em></h1>
+          <p class="rp-lead">
+            One place to report a local problem. A transparent path to the right city team, with updates until the work is done.
+          </p>
+          <div class="rp-hero-cta">
+            {% if user.is_authenticated %}
+            <a class="btn btn-hero btn-lg" href="{% url 'accounts:dashboard' %}">Visit your dashboard <i class="ic ic-arrow-right" aria-hidden="true"></i></a>
+            {% else %}
+            <a class="btn btn-hero btn-lg" href="{% url 'accounts:register' %}">Report a local issue <i class="ic ic-arrow-right" aria-hidden="true"></i></a>
+            <a class="btn btn-hero-ghost btn-lg" href="{% url 'accounts:login' %}">Log in</a>
+            {% endif %}
+          </div>
+          <ul class="rp-hero-facts">
+            <li><i class="ic ic-pin" aria-hidden="true"></i>Mapped to the right ward</li>
+            <li><i class="ic ic-shield" aria-hidden="true"></i>Human review when needed</li>
+            <li><i class="ic ic-clock" aria-hidden="true"></i>Progress through resolution</li>
+          </ul>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="rp-city-feature">
+            <div class="rp-showcase-head">
+              <span class="rp-showcase-icon"><i class="ic ic-pin" aria-hidden="true"></i></span>
+              <span class="rp-showcase-title"><strong>Routing preview</strong><small>DEMO CASE · WARD 08</small></span>
+              <span class="rp-showcase-status"><i aria-hidden="true"></i>ASSIGNED</span>
+            </div>
+            <svg class="rp-city-art" viewBox="0 0 760 620" role="img" aria-labelledby="city-art-title city-art-desc" xmlns="http://www.w3.org/2000/svg">
+              <title id="city-art-title">A civic issue routed to the right department</title>
+              <desc id="city-art-desc">A map-inspired routing preview shows a reported civic issue connected to its assigned city team.</desc>
+              <rect width="760" height="620" fill="#f3f4fb"/>
+              <g fill="none" stroke="#e2e4ef" stroke-width="1">
+                <path d="M0 92h760M0 184h760M0 276h760M0 368h760M0 460h760M0 552h760"/>
+                <path d="M95 0v620M190 0v620M285 0v620M380 0v620M475 0v620M570 0v620M665 0v620"/>
+              </g>
+              <g fill="#ffffff" stroke="#d7dbea" stroke-width="2">
+                <rect x="38" y="46" width="147" height="91" rx="8"/><rect x="215" y="43" width="124" height="100" rx="8"/>
+                <rect x="418" y="46" width="137" height="92" rx="8"/><rect x="590" y="45" width="132" height="98" rx="8"/>
+                <rect x="36" y="220" width="129" height="104" rx="8"/><rect x="204" y="219" width="154" height="112" rx="8"/>
+                <rect x="444" y="222" width="120" height="104" rx="8"/><rect x="601" y="216" width="120" height="112" rx="8"/>
+                <rect x="48" y="402" width="146" height="112" rx="8"/><rect x="242" y="418" width="119" height="90" rx="8"/>
+                <rect x="432" y="403" width="147" height="112" rx="8"/><rect x="617" y="409" width="105" height="95" rx="8"/>
+              </g>
+              <g fill="none" stroke="#514b54" stroke-linecap="round">
+                <path d="M-20 177h800" stroke="#d7dbea" stroke-width="34"/><path d="M-20 177h800" stroke="#f3f4fb" stroke-width="2"/>
+                <path d="M386-20v660" stroke="#d7dbea" stroke-width="38"/><path d="M386-20v660" stroke="#f3f4fb" stroke-width="2"/>
+                <path d="M-20 365h800" stroke="#d7dbea" stroke-width="32"/><path d="M-20 365h800" stroke="#f3f4fb" stroke-width="2"/>
+                <path d="M210-20v660" stroke="#d7dbea" stroke-width="28"/><path d="M210-20v660" stroke="#f3f4fb" stroke-width="2"/>
+                <path d="M577-20v660" stroke="#d7dbea" stroke-width="30"/><path d="M577-20v660" stroke="#f3f4fb" stroke-width="2"/>
+              </g>
+              <path d="M112 454C172 454 180 366 252 366s83-87 151-87 66-101 146-101h102" fill="none" stroke="#625fe8" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity=".18"/>
+              <path class="rp-route-line" d="M112 454C172 454 180 366 252 366s83-87 151-87 66-101 146-101h102" fill="none" stroke="#625fe8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <g fill="#7f8499" font-family="Inter, sans-serif" font-size="15" font-weight="600" letter-spacing="2">
+                <text x="54" y="75">NORTH WARD</text><text x="469" y="286">MARKET ST.</text><text x="80" y="450">REPORT</text>
+              </g>
+              <g>
+                <circle cx="112" cy="454" r="13" fill="#ffffff" stroke="#625fe8" stroke-width="4"/>
+                <circle cx="112" cy="454" r="4" fill="#1f2340"/>
+                <circle class="rp-map-pulse" cx="571" cy="178" r="27" fill="none" stroke="#625fe8" stroke-width="2"/>
+                <circle cx="571" cy="178" r="19" fill="#625fe8"/>
+                <circle cx="571" cy="178" r="8" fill="#ffffff"/>
+              </g>
+            </svg>
+            <div class="rp-city-caption"><span>REPORT → DEPARTMENT</span><span>A clear path from issue to action.</span></div>
+            <div class="rp-report-note">
+              <span class="rp-report-note-icon"><i class="ic ic-pin" aria-hidden="true"></i></span>
+              <span><small>DEMO CASE · 08:42 AM</small><strong>Civic issue reported</strong><em>Routed to the right city team</em></span>
+              <i class="ic ic-arrow-right rp-report-arrow" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rp-hero-journey" role="group" aria-label="The complaint journey">
+        <div class="rp-journey-intro">
+          <span>THE JOURNEY</span>
+          <strong>Every report has a clear next step.</strong>
+        </div>
+        <ol class="rp-journey-steps">
+          <li><span class="rp-journey-number">01</span><span><strong>Report</strong><small>Share the details</small></span></li>
+          <li><span class="rp-journey-number">02</span><span><strong>Route</strong><small>Reach the right team</small></span></li>
+          <li><span class="rp-journey-number">03</span><span><strong>Resolve</strong><small>Follow the progress</small></span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rp-section-pad" id="how-it-works">
+  <div class="container">
+    <p class="rp-kicker">How it works</p>
+    <h2 class="rp-h2">From report to resolution, in three stages</h2>
+    <p class="rp-h2-sub">Every complaint follows the same accountable path, and every step is visible to the people involved.</p>
+    <div class="rp-steps3">
+      <article class="rp-step3">
+        <div class="rp-feat-ic"><i class="ic ic-pin" aria-hidden="true"></i></div>
+        <h3>Report</h3>
+        <p>Describe the problem, choose its ward and street, and mark the exact spot by searching, tapping the map or using your device location. A photo helps the crew find it.</p>
+      </article>
+      <article class="rp-step3">
+        <div class="rp-feat-ic rp-feat-ic-teal"><i class="ic ic-spark" aria-hidden="true"></i></div>
+        <h3>Route</h3>
+        <p>Language processing and a trained classifier choose the responsible department. If it is not confident enough, an administrator decides instead of guessing.</p>
+      </article>
+      <article class="rp-step3">
+        <div class="rp-feat-ic rp-feat-ic-navy"><i class="ic ic-check-circle" aria-hidden="true"></i></div>
+        <h3>Resolve</h3>
+        <p>The department officer assigns a field worker, who reports the result with a photo. You are notified and confirm the fix, or reopen it if the problem remains.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="rp-section-pad rp-section-alt" id="roles">
+  <div class="container">
+    <p class="rp-kicker">Who it is for</p>
+    <h2 class="rp-h2">One platform for everyone who touches a complaint</h2>
+    <dl class="rp-roles">
+      <div><dt><span class="rp-feat-ic"><i class="ic ic-user" aria-hidden="true"></i></span><span>Citizens</span></dt><dd>Submit, track and give feedback on complaints.</dd></div>
+      <div><dt><span class="rp-feat-ic rp-feat-ic-teal"><i class="ic ic-building" aria-hidden="true"></i></span><span>Department officers</span></dt><dd>Work a queue filtered by area, ward and street, scoped to one department.</dd></div>
+      <div><dt><span class="rp-feat-ic rp-feat-ic-amber"><i class="ic ic-wrench" aria-hidden="true"></i></span><span>Field workers</span></dt><dd>See assigned jobs with location and photo, and report the result.</dd></div>
+      <div><dt><span class="rp-feat-ic rp-feat-ic-navy"><i class="ic ic-grid" aria-hidden="true"></i></span><span>Administrators</span></dt><dd>Correct routing, retrain the model and watch service levels.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="rp-section-pad" id="features">
+  <div class="container">
+    <p class="rp-kicker">Features</p>
+    <h2 class="rp-h2">Built for accountable service delivery</h2>
+    <div class="rp-features">
+      <div class="rp-feature"><div class="rp-feat-ic"><i class="ic ic-map" aria-hidden="true"></i></div><div><h3>Precise locations</h3><p>Complaints carry a ward, street and map pin, so officers can filter by area and crews can find the spot.</p></div></div>
+      <div class="rp-feature"><div class="rp-feat-ic rp-feat-ic-teal"><i class="ic ic-cpu" aria-hidden="true"></i></div><div><h3>Explainable routing</h3><p>Administrators can see which words influenced a routing decision, correct it, and retrain the model.</p></div></div>
+      <div class="rp-feature"><div class="rp-feat-ic rp-feat-ic-amber"><i class="ic ic-copy" aria-hidden="true"></i></div><div><h3>Duplicate checks</h3><p>Similar complaints are flagged for a person to review. Nothing is merged automatically.</p></div></div>
+      <div class="rp-feature"><div class="rp-feat-ic"><i class="ic ic-clock" aria-hidden="true"></i></div><div><h3>Deadlines and escalation</h3><p>Each department works to service levels, and overdue complaints can be escalated.</p></div></div>
+      <div class="rp-feature"><div class="rp-feat-ic rp-feat-ic-teal"><i class="ic ic-bell" aria-hidden="true"></i></div><div><h3>Stay informed</h3><p>Citizens and staff get notified when a complaint changes hands or status.</p></div></div>
+      <div class="rp-feature"><div class="rp-feat-ic rp-feat-ic-navy"><i class="ic ic-doc" aria-hidden="true"></i></div><div><h3>Audit trail</h3><p>Important actions are recorded, so decisions can be reviewed afterwards.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-5">
+  <div class="container">
+    <div class="rp-cta-band">
+      <div>
+        <h2>See a problem on your street?</h2>
+        <p>It takes a couple of minutes to report, and you can follow it until it is fixed.</p>
+      </div>
+      {% if user.is_authenticated %}
+      <a class="btn btn-hero btn-lg" href="{% url 'accounts:dashboard' %}">Go to your dashboard <i class="ic ic-arrow-right" aria-hidden="true"></i></a>
+      {% else %}
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-hero btn-lg" href="{% url 'accounts:register' %}">Create an account</a>
+        <a class="btn btn-hero-ghost btn-lg" href="{% url 'accounts:login' %}">Log in</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

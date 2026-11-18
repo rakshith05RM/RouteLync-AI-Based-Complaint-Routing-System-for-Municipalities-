@@ -1,0 +1,73 @@
+{% extends "adminpanel/base_admin.html" %}
+{% load static %}
+{% block title %}{{ complaint.reference }}{% endblock %}
+{% block heading %}{{ complaint.reference }} &middot; {{ complaint.title }}{% endblock %}
+{% block extra_head %}{% if map_point %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}{% endblock %}
+{% block page_actions %}<div class="rp-page-actions">{% include "partials/status_badge_staff.html" %}{% include "partials/priority_badge.html" %}</div>{% endblock %}
+{% block admin_content %}
+<p class="rp-backlink"><a href="{% url 'adminpanel:complaints' %}"><i class="ic ic-arrow-left ic-sm" aria-hidden="true"></i> All complaints</a></p>
+<div class="row g-4">
+  <div class="col-lg-8 rp-stack">
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-doc" aria-hidden="true"></i>Complaint</h2>
+      <p class="rp-text-block">{{ complaint.description }}</p>
+      <p class="small text-secondary mb-0">Submitted {{ complaint.created_at|date:"d M Y, H:i" }} by {{ complaint.citizen.full_name }}</p></section>
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-pin" aria-hidden="true"></i>Location</h2>
+      {% with loc=complaint.location %}<dl class="rp-dl mb-0">
+        <dt>Area / Ward</dt><dd>{% if loc.area %}{{ loc.area.name }}{% else %}<span class="text-secondary">Not provided</span>{% endif %}{% if loc.ward %}, Ward {{ loc.ward.number }}{% endif %}</dd>
+        {% if loc.street %}<dt>Street</dt><dd>{{ loc.street }}</dd>{% endif %}
+        {% if loc.landmark %}<dt>Landmark</dt><dd>{{ loc.landmark }}</dd>{% endif %}
+        {% if loc.building %}<dt>Building</dt><dd>{{ loc.building }}</dd>{% endif %}
+        <dt>Address</dt><dd>{{ loc.address_text }}</dd>
+        <dt>GPS</dt><dd>{% if loc.has_gps %}{{ loc.latitude }}, {{ loc.longitude }}{% else %}<span class="text-secondary">Not provided</span>{% endif %}</dd></dl>
+        {% if map_point %}<div id="complaint-map" class="rp-map rp-map-sm mt-3" data-lat="{{ map_point.lat }}" data-lng="{{ map_point.lng }}" data-priority="{{ complaint.priority }}" data-tile-url="{{ LOCATION_TILE_URL }}" data-tile-attribution="{{ LOCATION_TILE_ATTRIBUTION }}" aria-label="Complaint location map"></div>{% endif %}
+      {% endwith %}</section>
+    {% for image in complaint.images.all %}{% if image.kind == "EVIDENCE" %}
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-camera" aria-hidden="true"></i>Photo from the citizen</h2>
+      <a class="rp-photo" href="{% url 'complaints:image' complaint.pk image.pk %}" target="_blank" rel="noopener"><img src="{% url 'complaints:image' complaint.pk image.pk %}" alt="Photo submitted with {{ complaint.reference }}" style="max-height:320px"></a></section>
+    {% endif %}{% endfor %}
+    {% include "partials/duplicates_panel.html" with dups=duplicates detail_url_name="adminpanel:complaint" review_url_name="adminpanel:duplicate_review" %}
+    {% if corrections %}<section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-repeat" aria-hidden="true"></i>Routing decisions</h2>
+      {% for r in corrections %}<div class="rp-note"><div class="rp-note-meta">{{ r.created_at|date:"d M Y, H:i" }} &middot; {{ r.corrected_by.full_name|default:"Unknown" }}</div>
+        <div>{% if r.was_unrouted %}Chose{% else %}Moved to{% endif %} <strong>{{ r.corrected_department.name }}</strong>; the model had suggested {{ r.predicted_department.name|default:"nothing" }} ({% if r.ai_was_correct %}confirmed{% else %}changed{% endif %}).{% if r.training_sample_id %} Added to the training data.{% endif %}</div></div>{% endfor %}</section>{% endif %}
+    {% if escalations %}<section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-flag" aria-hidden="true"></i>Escalations</h2>
+      {% for e in escalations %}<div class="rp-note"><div class="rp-note-meta">{{ e.created_at|date:"d M Y, H:i" }} &middot; to {{ e.get_level_display }} &middot; {% if e.automatic %}automatic{% else %}manual{% endif %}</div><div>{{ e.reason }}</div></div>{% endfor %}</section>{% endif %}
+    {% if remarks %}<section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Remarks</h2>
+      {% for r in remarks %}<div class="rp-note"><div class="rp-note-meta">{{ r.author.full_name|default:"Unknown" }} &middot; {{ r.created_at|date:"d M Y, H:i" }} &middot; {{ r.get_visibility_display }}</div><div class="rp-text-block">{{ r.text }}</div></div>{% endfor %}</section>{% endif %}
+    {% if complaint.resolution_photo %}
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-check-circle" aria-hidden="true"></i>Proof of the completed work</h2>
+      <a class="rp-photo" href="{% url 'complaints:resolution_photo' complaint.pk %}" target="_blank" rel="noopener"><img src="{% url 'complaints:resolution_photo' complaint.pk %}" alt="Photo of the completed work" style="max-height:300px"></a></section>
+    {% endif %}
+    {% if feedback %}<section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-star" aria-hidden="true"></i>Citizen feedback</h2><p class="mb-1">{{ feedback.rating }}/5</p>{% if feedback.comment %}<p class="mb-0">{{ feedback.comment }}</p>{% endif %}</section>{% endif %}
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-clock" aria-hidden="true"></i>History</h2><ol class="rp-path mb-0">
+      {% for entry in complaint.status_history.all %}<li><strong>{{ entry.get_to_status_display }}</strong><span>{{ entry.timestamp|date:"d M Y, H:i" }} &middot; {% if entry.changed_by %}{{ entry.changed_by.full_name }}{% else %}System{% endif %}{% if entry.note %} &middot; {{ entry.note }}{% endif %}</span></li>{% endfor %}</ol></section>
+  </div>
+  <div class="col-lg-4 rp-stack">
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-activity" aria-hidden="true"></i>Status</h2><dl class="rp-facts mb-0">
+      <dt>Status</dt><dd>{% include "partials/status_badge_staff.html" %}</dd>
+      <dt>Priority</dt><dd>{% include "partials/priority_badge.html" %}{% if complaint.priority_reason %}<span class="d-block small text-secondary">{{ complaint.priority_reason }}</span>{% endif %}</dd>
+      <dt>Department</dt><dd>{{ complaint.department.name|default:"Not routed yet" }}</dd>
+      <dt>Assigned to</dt><dd>{% if assignment %}{{ assignment.assigned_to.full_name }}{% else %}<span class="text-secondary">Unassigned</span>{% endif %}</dd>
+      <dt>SLA deadline</dt><dd>{% if complaint.sla_deadline %}{{ complaint.sla_deadline|date:"d M Y, H:i" }}{% if sla %}<span class="d-block small {% if sla.is_overdue %}text-danger fw-semibold{% else %}text-secondary{% endif %}">{{ sla.label }}</span>{% endif %}{% else %}&ndash;{% endif %}</dd>
+      {% if complaint.escalation_level %}<dt>Escalation</dt><dd><span class="badge rp-escalated">{% if complaint.escalation_level == 1 %}Department Head{% else %}Administrator{% endif %}</span></dd>{% endif %}
+    </dl></section>
+    {% if can_route %}<section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-send" aria-hidden="true"></i>{% if complaint.status == "NEEDS_VERIFICATION" %}Choose the department{% else %}Correct the department{% endif %}</h2>
+      <form method="post" action="{% url 'adminpanel:route' complaint.pk %}">{% csrf_token %}
+        <select name="department" class="form-select form-select-sm mb-2" required aria-label="Department"><option value="">Choose a department</option>
+          {% for d in departments %}<option value="{{ d.pk }}" {% if d.pk == complaint.predicted_department_id and complaint.status == "NEEDS_VERIFICATION" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
+        <input type="text" name="note" maxlength="255" class="form-control form-control-sm mb-2" placeholder="Note (optional)" aria-label="Note (optional)">
+        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="add_to_training" id="train" checked><label class="form-check-label small" for="train">Use as a verified training example</label></div>
+        <button class="btn btn-rp btn-sm" type="submit">Save</button></form></section>{% endif %}
+    {% if can_reject %}<section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-x-circle" aria-hidden="true"></i>Reject</h2>
+      <form method="post" action="{% url 'adminpanel:reject' complaint.pk %}" data-confirm="Reject this complaint? The citizen will be told the reason.">{% csrf_token %}
+        <textarea name="reason" rows="2" maxlength="200" required class="form-control form-control-sm mb-2" placeholder="Reason shown to the citizen" aria-label="Reason"></textarea>
+        <button class="btn btn-outline-danger btn-sm" type="submit">Reject complaint</button></form></section>{% endif %}
+    <section class="rp-card p-4 rp-ai-panel"><h2 class="rp-section"><i class="ic ic-spark" aria-hidden="true"></i>AI routing</h2>
+      {% if complaint.ai_model %}<dl class="rp-facts mb-3"><dt>Predicted department</dt><dd>{{ complaint.predicted_department.name|default:"None" }}</dd>
+        <dt>Confidence</dt><dd>{% widthratio complaint.ai_confidence 1 100 %}%</dd><dt>Model</dt><dd>Version {{ complaint.ai_model.version }}</dd></dl>
+        {% for p in probabilities %}<div class="rp-prob"><div class="rp-prob-row"><span>{{ p.label }}</span><span>{{ p.percent }}%</span></div><div class="progress" role="img" aria-label="{{ p.label }} {{ p.percent }} percent"><div class="progress-bar" style="width:{{ p.percent }}%"></div></div></div>{% endfor %}
+        {% if complaint.ai_terms %}<p class="rp-chips mb-0 mt-3">{% for t in complaint.ai_terms %}<span class="badge rp-term">{{ t.term }}</span> {% endfor %}</p>{% endif %}
+      {% else %}<p class="mb-0 text-secondary">No AI prediction was recorded{% if complaint.routing_reason %} ({{ complaint.routing_reason }}){% endif %}.</p>{% endif %}</section>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}{% if map_point %}<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script><script src="{% static 'js/complaint_map.js' %}"></script>{% endif %}{% endblock %}

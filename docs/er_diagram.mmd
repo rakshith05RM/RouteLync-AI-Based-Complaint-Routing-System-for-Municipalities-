@@ -1,0 +1,322 @@
+erDiagram
+    User {
+        BigAuto id PK
+        Char password
+        DateTime last_login
+        Boolean is_superuser
+        Char email UK
+        Char full_name
+        Char phone
+        Char role
+        Boolean is_active
+        Boolean email_verified
+        Boolean is_staff
+        DateTime date_joined
+        DateTime updated_at
+    }
+    CitizenProfile {
+        BigAuto id PK
+        OneToOne user FK
+        Text address
+        DateTime created_at
+    }
+    EmailOTP {
+        BigAuto id PK
+        ForeignKey user FK
+        Char code_hash
+        DateTime created_at
+        DateTime expires_at
+        PositiveSmallInteger attempts
+        DateTime used_at
+    }
+    Department {
+        BigAuto id PK
+        Char name UK
+        Char code UK
+        Char description
+        Boolean is_active
+        DateTime created_at
+    }
+    Area {
+        BigAuto id PK
+        Char name UK
+    }
+    Ward {
+        BigAuto id PK
+        ForeignKey area FK
+        PositiveSmallInteger number
+        Char name
+    }
+    OfficerProfile {
+        BigAuto id PK
+        OneToOne user FK
+        ForeignKey department FK
+        Char designation
+        Boolean is_department_head
+    }
+    FieldWorkerProfile {
+        BigAuto id PK
+        OneToOne user FK
+        ForeignKey department FK
+        Char employee_code UK
+        Boolean is_available
+    }
+    SLAConfiguration {
+        BigAuto id PK
+        Char priority UK
+        PositiveInteger hours
+    }
+    Complaint {
+        BigAuto id PK
+        ForeignKey citizen FK
+        Char title
+        Text description
+        Char status
+        Char priority
+        ForeignKey department FK
+        DateTime created_at
+        DateTime updated_at
+        ForeignKey predicted_department FK
+        Float ai_confidence
+        JSON ai_probabilities
+        JSON ai_terms
+        ForeignKey ai_model FK
+        DateTime ai_predicted_at
+        Text cleaned_text
+        Char routing_method
+        Char routing_reason
+        DateTime routed_at
+        File resolution_photo
+        DateTime resolved_at
+        DateTime closed_at
+        PositiveSmallInteger escalation_level
+        DateTime sla_warned_at
+        Char priority_reason
+        DateTime sla_deadline
+    }
+    ComplaintLocation {
+        BigAuto id PK
+        OneToOne complaint FK
+        ForeignKey ward FK
+        Char street
+        Char landmark
+        Char building
+        Char address_text
+        Decimal latitude
+        Decimal longitude
+        Char formatted_address
+        Char place_id
+        Char location_source
+    }
+    ComplaintImage {
+        BigAuto id PK
+        ForeignKey complaint FK
+        File image
+        Char kind
+        ForeignKey resolution FK
+        ForeignKey uploaded_by FK
+        DateTime uploaded_at
+    }
+    ComplaintStatusHistory {
+        BigAuto id PK
+        ForeignKey complaint FK
+        Char from_status
+        Char to_status
+        ForeignKey changed_by FK
+        Char note
+        DateTime timestamp
+    }
+    ComplaintAssignment {
+        BigAuto id PK
+        ForeignKey complaint FK
+        ForeignKey assigned_to FK
+        ForeignKey assigned_by FK
+        DateTime assigned_at
+        DateTime ended_at
+        Char note
+        PositiveBigInteger active_key UK
+    }
+    ComplaintRemark {
+        BigAuto id PK
+        ForeignKey complaint FK
+        ForeignKey author FK
+        Text text
+        Char visibility
+        DateTime created_at
+    }
+    Resolution {
+        BigAuto id PK
+        ForeignKey complaint FK
+        Text remarks
+        ForeignKey resolved_by FK
+        DateTime resolved_at
+        Char outcome
+        ForeignKey reviewed_by FK
+        DateTime reviewed_at
+        Char review_note
+        DateTime citizen_confirmed_at
+        Char dispute_reason
+    }
+    EscalationEvent {
+        BigAuto id PK
+        ForeignKey complaint FK
+        PositiveSmallInteger level
+        Char reason
+        ForeignKey escalated_to FK
+        ForeignKey triggered_by FK
+        Boolean automatic
+        DateTime created_at
+    }
+    Feedback {
+        BigAuto id PK
+        OneToOne complaint FK
+        PositiveSmallInteger rating
+        Char comment
+        DateTime created_at
+    }
+    RoutingCorrection {
+        BigAuto id PK
+        ForeignKey complaint FK
+        ForeignKey predicted_department FK
+        ForeignKey corrected_department FK
+        ForeignKey corrected_by FK
+        Boolean ai_was_correct
+        Boolean was_unrouted
+        Char note
+        ForeignKey training_sample FK
+        DateTime created_at
+    }
+    DuplicateFlag {
+        BigAuto id PK
+        ForeignKey complaint FK
+        ForeignKey possible_duplicate_of FK
+        Float similarity
+        Char reason
+        Char status
+        ForeignKey reviewed_by FK
+        DateTime reviewed_at
+        DateTime created_at
+    }
+    SubmissionAttempt {
+        BigAuto id PK
+        ForeignKey citizen FK
+        Char title
+        Text description
+        ForeignKey ward FK
+        Char street
+        Char landmark
+        Char building
+        Char address_text
+        Decimal latitude
+        Decimal longitude
+        File image
+        Char reason_code
+        Char reason_label
+        Char message
+        DateTime created_at
+        DateTime updated_at
+    }
+    TrainingSample {
+        BigAuto id PK
+        Text text
+        Char text_hash UK
+        ForeignKey department FK
+        Char source
+        Boolean is_verified
+        Char dataset_version
+        ForeignKey complaint FK
+        DateTime created_at
+    }
+    MLModel {
+        BigAuto id PK
+        PositiveInteger version UK
+        Char artefact_file
+        Char artefact_sha256
+        JSON labels
+        PositiveInteger dataset_size
+        PositiveInteger train_size
+        PositiveInteger test_size
+        JSON class_distribution
+        Float accuracy
+        Float precision_macro
+        Float recall_macro
+        Float f1_macro
+        JSON per_class_metrics
+        JSON confusion_matrix
+        Float challenge_accuracy
+        JSON challenge_report
+        JSON best_params
+        Float cv_f1_macro
+        Float conf_threshold
+        JSON threshold_analysis
+        Boolean is_active
+        DateTime trained_at
+        ForeignKey trained_by FK
+        Char notes
+    }
+    Notification {
+        BigAuto id PK
+        ForeignKey recipient FK
+        Char kind
+        Char message
+        Char link
+        ForeignKey complaint FK
+        Boolean is_read
+        DateTime created_at
+    }
+    AuditLog {
+        BigAuto id PK
+        ForeignKey user FK
+        Char action
+        Char target_type
+        PositiveBigInteger target_id
+        Char summary
+        JSON details
+        DateTime timestamp
+    }
+    AuditLog }o--o| User : user
+    CitizenProfile ||--|| User : user
+    Complaint }o--o| Department : department
+    Complaint }o--o| Department : predicted_department
+    Complaint }o--o| MLModel : ai_model
+    Complaint }o--|| User : citizen
+    ComplaintAssignment }o--o| User : assigned_by
+    ComplaintAssignment }o--|| Complaint : complaint
+    ComplaintAssignment }o--|| User : assigned_to
+    ComplaintImage }o--o| Resolution : resolution
+    ComplaintImage }o--o| User : uploaded_by
+    ComplaintImage }o--|| Complaint : complaint
+    ComplaintLocation ||--|| Complaint : complaint
+    ComplaintLocation }o--|| Ward : ward
+    ComplaintRemark }o--o| User : author
+    ComplaintRemark }o--|| Complaint : complaint
+    ComplaintStatusHistory }o--o| User : changed_by
+    ComplaintStatusHistory }o--|| Complaint : complaint
+    DuplicateFlag }o--o| User : reviewed_by
+    DuplicateFlag }o--|| Complaint : complaint
+    DuplicateFlag }o--|| Complaint : possible_duplicate_of
+    EmailOTP }o--|| User : user
+    EscalationEvent }o--o| User : escalated_to
+    EscalationEvent }o--o| User : triggered_by
+    EscalationEvent }o--|| Complaint : complaint
+    Feedback ||--|| Complaint : complaint
+    FieldWorkerProfile ||--|| User : user
+    FieldWorkerProfile }o--|| Department : department
+    MLModel }o--o| User : trained_by
+    Notification }o--o| Complaint : complaint
+    Notification }o--|| User : recipient
+    OfficerProfile ||--|| User : user
+    OfficerProfile }o--|| Department : department
+    Resolution }o--o| User : resolved_by
+    Resolution }o--o| User : reviewed_by
+    Resolution }o--|| Complaint : complaint
+    RoutingCorrection }o--o| Department : predicted_department
+    RoutingCorrection }o--o| TrainingSample : training_sample
+    RoutingCorrection }o--o| User : corrected_by
+    RoutingCorrection }o--|| Complaint : complaint
+    RoutingCorrection }o--|| Department : corrected_department
+    SubmissionAttempt }o--o| Ward : ward
+    SubmissionAttempt }o--|| User : citizen
+    TrainingSample }o--o| Complaint : complaint
+    TrainingSample }o--|| Department : department
+    Ward }o--|| Area : area

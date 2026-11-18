@@ -1,0 +1,6 @@
+Hello {{ user.get_short_name }},
+
+The password for your {{ site_name }} account was just changed.
+If you did this, nothing more is needed. If you did not, reset your password immediately using the Forgot password link and contact your administrator.
+
+For your safety this email never contains your password.

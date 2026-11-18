@@ -1,0 +1,8 @@
+Hello {{ user.get_short_name }},
+
+Your {{ site_name }} verification code is:
+
+    {{ code }}
+
+It works once and expires in {{ minutes }} minutes. If you did not create an account, you can ignore this email.
+Never share this code with anyone.

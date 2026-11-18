@@ -1,0 +1,23 @@
+{% if dups.any %}
+<section class="rp-card p-4">
+  <h2 class="rp-section"><i class="ic ic-copy" aria-hidden="true"></i>Possible duplicates</h2>
+  {% for d in dups.pending %}
+  <div class="rp-note mb-3">
+    <p class="mb-1">This may repeat
+      {% if d.other %}<a href="{% url detail_url_name d.other.pk %}">{{ d.other.reference }}</a> &ndash; {{ d.other.title|truncatechars:60 }}
+      {% else %}an earlier complaint handled by another department{% endif %}
+      <span class="badge rp-await">{{ d.percent }}% similar</span></p>
+    <p class="small text-secondary mb-3">Compared because of the {{ d.flag.reason }}. A person must decide; nothing is merged automatically.</p>
+    <form method="post" action="{% url review_url_name complaint.pk d.flag.pk %}" class="d-flex gap-2 flex-wrap">{% csrf_token %}
+      <button class="btn btn-outline-rp btn-sm" name="decision" value="duplicate" type="submit" data-confirm="Mark this complaint as a duplicate? If work has not started it will be closed and the citizen told.">Mark as duplicate</button>
+      <button class="btn btn-rp btn-sm" name="decision" value="not_duplicate" type="submit">Not a duplicate</button>
+    </form>
+  </div>
+  {% endfor %}
+  {% for d in dups.reviewed %}
+  <p class="small mb-1">{% if d.other %}{{ d.other.reference }}{% else %}Another complaint{% endif %}: {{ d.flag.get_status_display }}{% if d.flag.reviewed_by %} by {{ d.flag.reviewed_by.full_name }}{% endif %}.</p>
+  {% endfor %}
+  {% if dups.newer %}<p class="small text-secondary mb-0 mt-2">Newer complaints that may repeat this one:
+    {% for d in dups.newer %}{% if d.other %}<a href="{% url detail_url_name d.other.pk %}">{{ d.other.reference }}</a>{% else %}one in another department{% endif %} ({{ d.percent }}%){% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+</section>
+{% endif %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{# Signed-in workspace shell: role-aware sidebar, topbar and content area. Every workspace page extends this. #}
+{% block body_class %}rp-appbody{% endblock %}
+{% block shell %}
+<div class="rp-app">
+  {% include "partials/sidebar.html" %}
+  <div class="rp-main">
+    {% include "partials/topbar.html" %}
+
+    {# Toast messages from django.contrib.messages #}
+    {% include "partials/messages.html" %}
+
+    <main id="main" class="rp-content{% block content_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="rp-app-foot">
+      <span><strong>{{ SITE_NAME }}</strong> · {{ SITE_TAGLINE }}</span>
+      <span>&copy; {% now "Y" %} {{ SITE_NAME }}</span>
+    </footer>
+  </div>
+</div>
+{% endblock %}

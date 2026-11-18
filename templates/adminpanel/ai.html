@@ -1,0 +1,46 @@
+{% extends "adminpanel/base_admin.html" %}
+{% load form_tags %}
+{% block title %}AI model{% endblock %}
+{% block heading %}AI model{% endblock %}
+{% block page_actions %}
+<div class="rp-page-actions">
+  <a class="btn btn-outline-rp btn-sm" href="{% url 'adminpanel:dataset' %}"><i class="ic ic-db" aria-hidden="true"></i>Training data</a>
+  <form method="post" action="{% url 'adminpanel:train' %}" data-busy="Training, please wait...">{% csrf_token %}<button class="btn btn-rp btn-sm" type="submit"><i class="ic ic-refresh" aria-hidden="true"></i>Train a new model</button></form>
+</div>
+{% endblock %}
+{% block admin_content %}
+<section class="rp-card p-4 mb-4 rp-ai-panel"><h2 class="rp-section"><i class="ic ic-spark" aria-hidden="true"></i>Try the model</h2>
+  <form method="post" action="{% url 'adminpanel:trace' %}" class="d-flex gap-2 flex-wrap">{% csrf_token %}
+    <input type="text" name="text" maxlength="500" required class="form-control" style="flex:1 1 20rem" placeholder="Type a complaint to see how the model reads it" aria-label="Complaint text">
+    <button class="btn btn-rp" type="submit">Explain</button></form></section>
+{% if model %}
+<div class="row g-4 mb-4">
+  <div class="col-lg-7"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-cpu" aria-hidden="true"></i>Active model: version {{ model.version }}</h2>
+    <p class="small text-secondary">Results on the held-out test split. The split comes from the same data the model learned from, so it is optimistic; the hand-written challenge set is the stricter check.</p>
+    <dl class="rp-dl mb-3"><dt>Accuracy</dt><dd>{% widthratio model.accuracy 1 100 %}%</dd>
+      <dt>Precision / Recall / F1 (macro)</dt><dd>{% widthratio model.precision_macro 1 100 %}% / {% widthratio model.recall_macro 1 100 %}% / {% widthratio model.f1_macro 1 100 %}%</dd>
+      {% if model.challenge_accuracy is not None %}<dt>Challenge set accuracy</dt><dd>{% widthratio model.challenge_accuracy 1 100 %}%</dd>{% endif %}
+      <dt>Training examples</dt><dd>{{ model.dataset_size }} ({{ model.train_size }} train, {{ model.test_size }} test)</dd></dl>
+    <div class="table-responsive mb-3"><table class="table table-sm mb-0 rp-table"><thead><tr><th>Department</th><th>Precision</th><th>Recall</th><th>F1</th><th>Tested</th></tr></thead>
+      <tbody>{% for r in per_class %}<tr><td>{{ r.label }}</td><td>{% widthratio r.precision 1 100 %}%</td><td>{% widthratio r.recall 1 100 %}%</td><td>{% widthratio r.f1 1 100 %}%</td><td>{{ r.support }}</td></tr>{% endfor %}</tbody></table></div>
+    <div class="table-responsive"><table class="table table-sm text-center mb-0 rp-matrix"><thead><tr><th class="text-start">Actual \ Predicted</th>{% for l in model.labels %}<th>{{ l }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in matrix %}<tr><th class="text-start">{{ row.label }}</th>{% for c in row.cells %}<td class="{% if forloop.counter0 == forloop.parentloop.counter0 %}rp-diag{% elif c %}rp-miss{% endif %}">{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+  </section></div>
+  <div class="col-lg-5"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-filter" aria-hidden="true"></i>Confidence threshold</h2>
+    <p class="small text-secondary">Complaints below this confidence go to the verification queue. The training run suggested {{ model.threshold_analysis.selected_threshold }}.</p>
+    <form method="post" action="{% url 'adminpanel:threshold' model.pk %}" class="d-flex gap-2 align-items-end">{% csrf_token %}
+      <div><label class="form-label" for="id_threshold">Threshold</label>{{ threshold_form.threshold|add_class:"form-control form-control-sm" }}</div>
+      <button class="btn btn-rp btn-sm" type="submit">Save</button></form>
+    <hr class="rp-divider"><h2 class="rp-section"><i class="ic ic-users" aria-hidden="true"></i>Human corrections</h2>
+    <dl class="rp-facts mb-0"><dt>AI-routed complaints later moved by an administrator</dt><dd>{{ ai.corrected_after_routing }} of {{ ai.auto_routed }}</dd>
+      <dt>Verification-queue decisions that matched the model</dt><dd>{{ ai.queue_agreed_with_ai }} of {{ ai.queue_decided }}</dd>
+      <dt>Corrections added to the training data</dt><dd>{{ ai.added_to_training }}</dd></dl></section></div>
+</div>
+{% else %}<div class="rp-card rp-empty mb-4"><div class="rp-empty-ic"><i class="ic ic-cpu" aria-hidden="true"></i></div><p class="mb-0">No model is active. Train one, review its results, then activate it.</p></div>{% endif %}
+<section class="rp-card"><div class="rp-card-head"><h2 class="rp-section"><i class="ic ic-layers" aria-hidden="true"></i>Model versions</h2></div><div class="table-responsive"><table class="table align-middle mb-0 rp-table">
+  <thead><tr><th>Version</th><th>Trained</th><th>Examples</th><th>Accuracy</th><th>Challenge</th><th>Threshold</th><th class="text-end">Status</th></tr></thead>
+  <tbody>{% for m in models %}<tr><td class="fw-semibold">v{{ m.version }}</td><td>{{ m.trained_at|date:"d M Y, H:i" }}</td><td>{{ m.dataset_size }}</td><td>{% widthratio m.accuracy 1 100 %}%</td>
+    <td>{% if m.challenge_accuracy is not None %}{% widthratio m.challenge_accuracy 1 100 %}%{% else %}&ndash;{% endif %}</td><td>{{ m.conf_threshold }}</td>
+    <td class="text-end">{% if m.is_active %}<span class="badge rp-term">Active</span>{% else %}<form method="post" action="{% url 'adminpanel:activate' m.pk %}" class="d-inline">{% csrf_token %}<button class="btn btn-outline-rp btn-sm" type="submit">Activate</button></form>{% endif %}</td></tr>
+  {% empty %}<tr><td colspan="7" class="text-secondary p-4">No models have been trained yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

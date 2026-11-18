@@ -1,0 +1,11 @@
+{% extends "base_app.html" %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <p class="rp-eyebrow"><i class="ic ic-shield" aria-hidden="true"></i>Administration</p>
+      <h1 class="rp-title">{% block heading %}{% endblock %}</h1>
+    </div>
+    {% block page_actions %}{% endblock %}
+  </div>
+  {% block admin_content %}{% endblock %}
+{% endblock %}

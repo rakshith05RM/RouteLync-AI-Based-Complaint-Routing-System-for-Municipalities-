@@ -1,0 +1,18 @@
+{% extends "auth_base.html" %}
+{% block title %}Verify your email{% endblock %}
+{% block content %}
+  <div class="rp-auth-icon"><i class="ic ic-mail" aria-hidden="true"></i></div>
+  <h1>Verify your email</h1>
+  <p class="rp-auth-lead">Enter the 6-digit code sent to <strong>{{ email }}</strong>. It works once and expires in {{ otp_minutes }} minutes.</p>
+  {% if EMAIL_CONSOLE %}<div class="alert alert-warning small" role="note">Development mode: emails are not sent to real inboxes. The code is printed in the terminal window that is running the server.</div>{% endif %}
+  <form method="post" novalidate class="rp-card rp-auth-card">
+    {% csrf_token %}{% include "partials/form_errors.html" %}
+    {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+    <button class="btn btn-rp w-100 mt-1" type="submit">Verify and continue</button>
+  </form>
+  <form method="post" action="{% url 'accounts:resend_code' %}" class="mt-3 d-flex flex-wrap align-items-center gap-2">{% csrf_token %}
+    <span class="small text-secondary">Did not get it? Check your spam folder.</span>
+    <button class="btn btn-outline-rp btn-sm" type="submit">Send a new code</button>
+  </form>
+  <p class="small mt-3"><a href="{% url 'accounts:register' %}">Use a different email address</a></p>
+{% endblock %}

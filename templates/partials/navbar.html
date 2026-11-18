@@ -1,0 +1,33 @@
+{# Public navigation bar (home, errors). Signed-in workspaces use sidebar.html + topbar.html instead. #}
+<header class="rp-pubnav">
+  <nav class="navbar navbar-expand-md" aria-label="Main">
+    <div class="container">
+      <a class="navbar-brand rp-brand" href="{% url 'core:home' %}">{% include "partials/brand_mark.html" %}<span>Route<span>Lync</span></span></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#rpNav" aria-controls="rpNav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="ic ic-menu" aria-hidden="true"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="rpNav">
+        <ul class="navbar-nav me-auto ms-md-3">
+          <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}#how-it-works">How it works</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}#roles">Who it is for</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}#features">Features</a></li>
+        </ul>
+        <ul class="navbar-nav align-items-md-center gap-md-2">
+          {% if user.is_authenticated %}
+            <li class="nav-item"><a class="btn btn-rp btn-sm" href="{% url 'accounts:dashboard' %}">Dashboard <i class="ic ic-arrow-right" aria-hidden="true"></i></a></li>
+            <li class="nav-item">
+              <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-rp btn-sm">Log out</button>
+              </form>
+            </li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Log in</a></li>
+            <li class="nav-item"><a class="btn btn-rp btn-sm" href="{% url 'accounts:register' %}">Register</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

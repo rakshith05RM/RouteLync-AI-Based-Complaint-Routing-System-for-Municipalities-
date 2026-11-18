@@ -1,0 +1,19 @@
+{% extends "adminpanel/base_admin.html" %}
+{% block title %}Departments{% endblock %}
+{% block heading %}Departments{% endblock %}
+{% block page_actions %}<div class="rp-page-actions"><a class="btn btn-outline-rp btn-sm" href="{% url 'adminpanel:sla' %}"><i class="ic ic-clock" aria-hidden="true"></i>SLA settings</a></div>{% endblock %}
+{% block admin_content %}
+<p class="text-secondary small mb-3">Response times are set on the <a href="{% url 'adminpanel:sla' %}">SLA settings</a> page.</p>
+<div class="rp-card mb-4"><div class="table-responsive"><table class="table align-middle mb-0 rp-table">
+  <thead><tr><th>Department</th><th>Code</th><th>Officers</th><th>Field workers</th><th>Active complaints</th><th>AI model</th><th class="text-end">Status</th></tr></thead>
+  <tbody>{% for d in departments %}<tr>
+    <td class="fw-semibold">{{ d.name }}</td><td class="small">{{ d.code }}</td><td>{{ d.officers_n }}</td><td>{{ d.workers_n }}</td><td>{{ d.active_n }}</td>
+    <td class="small">{% if d.code in trained_codes %}<span class="rp-term">Recognised</span>{% else %}<span class="text-secondary">Not trained yet</span>{% endif %}</td>
+    <td class="text-end text-nowrap"><form method="post" action="{% url 'adminpanel:department_toggle' d.pk 'off' %}" class="d-inline">{% csrf_token %}{% if d.is_active %}<button class="btn btn-outline-rp btn-sm" type="submit">Deactivate</button>{% endif %}</form>
+      <form method="post" action="{% url 'adminpanel:department_toggle' d.pk 'on' %}" class="d-inline">{% csrf_token %}{% if not d.is_active %}<button class="btn btn-rp btn-sm" type="submit">Activate</button>{% endif %}</form></td></tr>{% endfor %}</tbody></table></div></div>
+<section class="rp-card p-4" style="max-width:40rem"><h2 class="rp-section"><i class="ic ic-plus" aria-hidden="true"></i>Add a department</h2>
+  <form method="post" action="{% url 'adminpanel:department_new' %}" novalidate>{% csrf_token %}
+    {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+    <button class="btn btn-rp btn-sm" type="submit">Add department</button>
+    <p class="small text-secondary mt-3 mb-0">A new department needs training examples and a new model before complaints can be routed to it automatically. Until then, send complaints to it from the verification queue.</p></form></section>
+{% endblock %}

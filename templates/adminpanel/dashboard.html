@@ -1,0 +1,64 @@
+{% extends "adminpanel/base_admin.html" %}
+{% block title %}Administration{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block admin_content %}
+<div class="rp-stats rp-stats-7">
+  <div class="rp-stat"><span class="rp-stat-ic"><i class="ic ic-layers" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.total }}</span><span class="rp-stat-l">Total complaints</span></div>
+  <div class="rp-stat"><span class="rp-stat-ic"><i class="ic ic-clock" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.pending }}</span><span class="rp-stat-l">Pending</span></div>
+  <div class="rp-stat rp-stat-teal"><span class="rp-stat-ic"><i class="ic ic-activity" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.in_progress }}</span><span class="rp-stat-l">In progress</span></div>
+  <div class="rp-stat rp-stat-green"><span class="rp-stat-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.resolved }}</span><span class="rp-stat-l">Resolved</span></div>
+  <div class="rp-stat {% if summary.overdue %}rp-stat-alert{% endif %}"><span class="rp-stat-ic"><i class="ic ic-alert-triangle" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.overdue }}</span><span class="rp-stat-l">Overdue</span></div>
+  <div class="rp-stat {% if summary.escalated %}rp-stat-alert{% endif %}"><span class="rp-stat-ic"><i class="ic ic-flag" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.escalated }}</span><span class="rp-stat-l">Escalated</span></div>
+  <a href="{% url 'adminpanel:queue' %}"><div class="rp-stat {% if summary.needs_verification %}rp-stat-note{% endif %}"><span class="rp-stat-ic"><i class="ic ic-shield" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.needs_verification }}</span><span class="rp-stat-l">Needs verification</span></div></a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8"><section class="rp-card p-4 h-100">
+    <h2 class="rp-section"><i class="ic ic-trend" aria-hidden="true"></i>Complaints submitted, last 30 days</h2>
+    <svg viewBox="0 0 640 120" preserveAspectRatio="none" class="rp-line" role="img" aria-label="Complaints per day, last 30 days: {{ over_time.total }} in total"><defs><linearGradient id="rpArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A87532" stop-opacity="0.32"/><stop offset="60%" stop-color="#C4A66E" stop-opacity="0.08"/><stop offset="100%" stop-color="#A87532" stop-opacity="0"/></linearGradient></defs><line class="rp-line-grid" x1="0" y1="30" x2="640" y2="30"/><line class="rp-line-grid" x1="0" y1="60" x2="640" y2="60"/><line class="rp-line-grid" x1="0" y1="90" x2="640" y2="90"/><polygon class="rp-line-area" points="{{ over_time.points }} 632,120 8,120"/><polyline fill="none" stroke="#A87532" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" points="{{ over_time.points }}"/></svg>
+    <p class="small text-secondary mb-0">{{ over_time.total }} complaints{% if over_time.peak and over_time.peak.1 %}; busiest day {{ over_time.peak.0|date:"d M" }} ({{ over_time.peak.1 }}){% endif %}.</p>
+  </section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-activity" aria-hidden="true"></i>By status</h2>{% include "partials/bars.html" with items=statuses %}</section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-building" aria-hidden="true"></i>By department</h2>{% include "partials/bars.html" with items=by_department %}</section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-map" aria-hidden="true"></i>By area</h2>{% include "partials/bars.html" with items=by_area %}</section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-pin" aria-hidden="true"></i>Busiest wards</h2>{% include "partials/bars.html" with items=by_ward %}</section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-flag" aria-hidden="true"></i>By priority</h2>{% include "partials/bars.html" with items=priorities %}</section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-clock" aria-hidden="true"></i>Average hours to resolve</h2>{% include "partials/bars.html" with items=resolution unit=" h" %}</section></div>
+  <div class="col-lg-4"><section class="rp-card p-4 h-100">
+    <h2 class="rp-section"><i class="ic ic-star" aria-hidden="true"></i>Citizen feedback</h2>
+    {% if feedback.count %}<p class="mb-3"><span class="rp-stat-n">{{ feedback.average }}</span> <span class="text-secondary">/ 5 from {{ feedback.count }} rating{{ feedback.count|pluralize }}</span></p>
+    {% include "partials/bars.html" with items=feedback.distribution %}{% else %}<p class="text-secondary small mb-0">No feedback yet.</p>{% endif %}
+  </section></div>
+</div>
+
+<h2 class="rp-h-section"><i class="ic ic-spark" aria-hidden="true"></i>AI routing</h2>
+<div class="row g-4">
+  {% if ai.model %}
+  <div class="col-12"><div class="rp-stats mb-0">
+    <div class="rp-stat rp-stat-ai"><span class="rp-stat-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></span><span class="rp-stat-n">{% widthratio ai.model.accuracy 1 100 %}%</span><span class="rp-stat-l">Accuracy (held-out test)</span></div>
+    <div class="rp-stat rp-stat-ai"><span class="rp-stat-ic"><i class="ic ic-pin" aria-hidden="true"></i></span><span class="rp-stat-n">{% widthratio ai.model.precision_macro 1 100 %}%</span><span class="rp-stat-l">Precision (macro)</span></div>
+    <div class="rp-stat rp-stat-ai"><span class="rp-stat-ic"><i class="ic ic-search" aria-hidden="true"></i></span><span class="rp-stat-n">{% widthratio ai.model.recall_macro 1 100 %}%</span><span class="rp-stat-l">Recall (macro)</span></div>
+    <div class="rp-stat rp-stat-ai"><span class="rp-stat-ic"><i class="ic ic-layers" aria-hidden="true"></i></span><span class="rp-stat-n">{% widthratio ai.model.f1_macro 1 100 %}%</span><span class="rp-stat-l">F1 score (macro)</span></div>
+  </div></div>
+  <div class="col-lg-7"><section class="rp-card p-4 h-100">
+    <h2 class="rp-section"><i class="ic ic-grid" aria-hidden="true"></i>Confusion matrix (test set)</h2>
+    <div class="table-responsive"><table class="table table-sm text-center mb-1 rp-matrix">
+      <thead><tr><th class="text-start">Actual \ Predicted</th>{% for l in ai.model.labels %}<th>{{ l }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in matrix %}<tr><th class="text-start">{{ row.label }}</th>{% for c in row.cells %}<td class="{% if forloop.counter0 == forloop.parentloop.counter0 %}rp-diag{% elif c %}rp-miss{% endif %}">{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table></div>
+  </section></div>
+  <div class="col-lg-5"><section class="rp-card p-4 h-100">
+    <h2 class="rp-section"><i class="ic ic-cpu" aria-hidden="true"></i>Current model</h2>
+    <dl class="rp-facts mb-0">
+      <dt>Version</dt><dd>{{ ai.model.version }}, trained {{ ai.model.trained_at|date:"d M Y, H:i" }}</dd>
+      <dt>Training data</dt><dd>{{ ai.model.dataset_size }} examples ({{ ai.samples }} verified in the database now)</dd>
+      <dt>Confidence threshold</dt><dd>{{ ai.model.conf_threshold }}</dd>
+      {% if ai.model.challenge_accuracy is not None %}<dt>Hand-written challenge set</dt><dd>{% widthratio ai.model.challenge_accuracy 1 100 %}% accuracy</dd>{% endif %}
+      <dt>Corrected after routing</dt><dd>{{ ai.corrected_after_routing }} of {{ ai.auto_routed }} AI-routed complaints{% if ai.correction_rate is not None %} ({{ ai.correction_rate }}%){% endif %}</dd>
+    </dl>
+  </section></div>
+  {% else %}
+  <div class="col-12"><div class="rp-card rp-empty"><div class="rp-empty-ic"><i class="ic ic-cpu" aria-hidden="true"></i></div><p class="mb-2">No AI model is active. New complaints go to the verification queue until one is trained and activated.</p><a class="btn btn-rp btn-sm" href="{% url 'adminpanel:ai' %}">Open the AI model page</a></div></div>
+  {% endif %}
+</div>
+{% endblock %}

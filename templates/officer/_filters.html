@@ -1,0 +1,44 @@
+{% load form_tags %}
+<form method="get" class="rp-card rp-filters" id="filter-form">
+  {% if filter_errors %}
+  <div class="alert alert-warning py-2 small" role="alert">
+    Some filters were ignored:
+    {% for field, errs in filter_errors.items %}{% for e in errs %}<span class="d-block">{{ e }}</span>{% endfor %}{% endfor %}
+  </div>
+  {% endif %}
+  <div class="row g-3">
+    {% if not compact %}
+    <div class="col-12">
+      <label class="form-label" for="{{ form.q.id_for_label }}">Search</label>
+      <div class="rp-search"><i class="ic ic-search" aria-hidden="true"></i>{{ form.q|add_class:"form-control" }}</div>
+    </div>
+    {% endif %}
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_area">Area</label>{{ form.area|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_ward">Ward</label>{{ form.ward|add_class:"form-select form-select-sm" }}</div>
+    {% if not compact %}
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_street">Street</label>{{ form.street|add_class:"form-control form-control-sm" }}
+      <datalist id="street-list">{% for s in streets %}<option value="{{ s }}">{% endfor %}</datalist></div>
+    {% endif %}
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_status">Status</label>{{ form.status|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_priority">Priority</label>{{ form.priority|add_class:"form-select form-select-sm" }}</div>
+    {% if not compact %}
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_sort">Sort by</label>{{ form.sort|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_date_from">From</label>{{ form.date_from|add_class:"form-control form-control-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_date_to">To</label>{{ form.date_to|add_class:"form-control form-control-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-3"><label class="form-label" for="id_min_confidence">AI confidence at least (%)</label>{{ form.min_confidence|add_class:"form-control form-control-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_escalation">Escalation</label>{{ form.escalation|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-md-3 col-lg-2"><label class="form-label" for="id_assigned_to">Assigned to</label>{{ form.assigned_to|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-12">
+      <div class="rp-checks">
+        <div class="form-check">{{ form.overdue|add_class:"form-check-input" }}<label class="form-check-label small" for="id_overdue">Overdue only</label></div>
+        <div class="form-check">{{ form.awaiting_verification|add_class:"form-check-input" }}<label class="form-check-label small" for="id_awaiting_verification">Awaiting my verification</label></div>
+        <div class="form-check">{{ form.duplicates|add_class:"form-check-input" }}<label class="form-check-label small" for="id_duplicates">Possible duplicates</label></div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="col-12 col-lg d-flex align-items-end gap-2 justify-content-lg-end">
+      <button class="btn btn-rp btn-sm" type="submit"><i class="ic ic-filter" aria-hidden="true"></i>Apply</button>
+      <a class="btn btn-outline-rp btn-sm" href="{{ request.path }}">Reset</a>
+    </div>
+  </div>
+</form>

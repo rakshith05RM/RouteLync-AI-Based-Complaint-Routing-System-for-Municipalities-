@@ -1,0 +1,33 @@
+{% extends "adminpanel/base_admin.html" %}
+{% load form_tags %}
+{% block title %}Training data{% endblock %}
+{% block heading %}Training data{% endblock %}
+{% block admin_content %}
+<p class="rp-backlink"><a href="{% url 'adminpanel:ai' %}"><i class="ic ic-arrow-left ic-sm" aria-hidden="true"></i> AI model</a></p>
+{% if report %}<div class="alert {% if report.dry_run %}alert-info{% else %}alert-success{% endif %}"><strong>{{ report.summary }}</strong>
+  {% for line in report.invalid %}<div class="small">{{ line }}</div>{% endfor %}{% for line in report.conflicts %}<div class="small">{{ line }}</div>{% endfor %}
+  {% for code, n in report.unknown.items %}<div class="small">Unknown department "{{ code }}": {{ n }} row{{ n|pluralize }}</div>{% endfor %}</div>{% endif %}
+<div class="row g-4 mb-4">
+  <div class="col-lg-5"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-db" aria-hidden="true"></i>Class balance</h2>
+    <p class="mb-3">{{ stats.verified_rows }} verified example{{ stats.verified_rows|pluralize }}{% if stats.unverified_rows %}, {{ stats.unverified_rows }} not verified (never used for training){% endif %}.</p>
+    {% include "partials/bars.html" with items=bars %}
+    {% if stats.imbalance_ratio %}<p class="small text-secondary mt-2 mb-0">Largest class is {{ stats.imbalance_ratio }} times the smallest.</p>{% endif %}
+    <a class="btn btn-outline-rp btn-sm mt-3" href="{% url 'adminpanel:dataset_export' %}"><i class="ic ic-download" aria-hidden="true"></i>Export verified data (CSV)</a></section></div>
+  <div class="col-lg-7"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-download ic-sm" aria-hidden="true"></i>Import a CSV file</h2>
+    <form method="post" action="{% url 'adminpanel:dataset_upload' %}" enctype="multipart/form-data">{% csrf_token %}
+      <input type="file" name="file" accept=".csv,text/csv" required class="form-control form-control-sm mb-2" aria-label="CSV file">
+      <input type="text" name="dataset_version" maxlength="40" class="form-control form-control-sm mb-2" placeholder="Version label (optional)" aria-label="Version label (optional)">
+      <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="dry_run" id="dry" checked><label class="form-check-label small" for="dry">Check only, do not save</label></div>
+      <button class="btn btn-rp btn-sm" type="submit">Check or import</button></form>
+    <hr class="rp-divider"><h2 class="rp-section"><i class="ic ic-plus" aria-hidden="true"></i>Add one verified example</h2>
+    <form method="post" action="{% url 'adminpanel:dataset_add' %}">{% csrf_token %}
+      <textarea name="text" rows="2" maxlength="2000" required class="form-control form-control-sm mb-2" placeholder="Complaint text" aria-label="Complaint text"></textarea>
+      <select name="department" required class="form-select form-select-sm mb-2" aria-label="Department"><option value="">Choose a department</option>{% for d in departments %}<option value="{{ d.pk }}">{{ d.name }}</option>{% endfor %}</select>
+      <button class="btn btn-outline-rp btn-sm" type="submit">Add example</button></form></section></div>
+</div>
+<form method="get" class="d-flex flex-wrap gap-2 mb-3"><select name="department" class="form-select form-select-sm" style="width:12rem" aria-label="Department"><option value="">All departments</option>{% for d in departments %}<option value="{{ d.pk }}" {% if request.GET.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
+  <select name="verified" class="form-select form-select-sm" style="width:10rem" aria-label="Verified"><option value="">Any</option><option value="yes" {% if request.GET.verified == "yes" %}selected{% endif %}>Verified</option><option value="no" {% if request.GET.verified == "no" %}selected{% endif %}>Not verified</option></select><button class="btn btn-rp btn-sm" type="submit"><i class="ic ic-filter" aria-hidden="true"></i>Filter</button></form>
+<div class="rp-card"><div class="table-responsive"><table class="table align-middle mb-0 rp-table"><thead><tr><th>Text</th><th>Department</th><th>Source</th><th>Verified</th></tr></thead>
+  <tbody>{% for s in samples %}<tr><td>{{ s.text|truncatechars:110 }}</td><td>{{ s.department.name }}</td><td class="small">{{ s.get_source_display }}</td><td>{% if s.is_verified %}Yes{% else %}No{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="p-4 text-secondary">No examples match.</td></tr>{% endfor %}</tbody></table></div></div>
+{% if is_paginated %}<ul class="pagination pagination-sm mt-3">{% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}<li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>{% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}</ul>{% endif %}
+{% endblock %}

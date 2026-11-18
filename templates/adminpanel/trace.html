@@ -1,0 +1,29 @@
+{% extends "adminpanel/base_admin.html" %}
+{% block title %}How the model reads a complaint{% endblock %}
+{% block heading %}How the model reads a complaint{% endblock %}
+{% block admin_content %}
+<p class="rp-backlink"><a href="{% url 'adminpanel:ai' %}"><i class="ic ic-arrow-left ic-sm" aria-hidden="true"></i> AI model</a></p>
+<section class="rp-card p-4 mb-4"><h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Input</h2><p class="rp-text-block mb-0">{{ text }}</p></section>
+<div class="row g-4">
+  <div class="col-lg-7"><section class="rp-card p-4 h-100"><h2 class="rp-section"><i class="ic ic-layers" aria-hidden="true"></i>Text processing</h2>
+    <ol class="mb-0 ps-3">
+      <li class="mb-3"><strong>Cleaning</strong> (lower case, no digits or punctuation, contractions and spellings normalised)<div class="small text-secondary">{{ trace.cleaned|default:"(nothing left)" }}</div></li>
+      <li class="mb-3"><strong>Tokens</strong><div class="small text-secondary">{{ trace.tokens|join:" | "|default:"(none)" }}</div></li>
+      <li class="mb-3"><strong>Stop-words removed</strong> (negations such as &ldquo;no&rdquo; and &ldquo;not&rdquo; are kept)<div class="small text-secondary">removed: {{ trace.removed|join:", "|default:"nothing" }}</div></li>
+      <li class="mb-3"><strong>Stemming</strong><div class="small text-secondary">{{ trace.stems|join:" "|default:"(none)" }}</div></li>
+      <li><strong>TF-IDF features</strong> &ndash; {{ trace.feature_count }} term{{ trace.feature_count|pluralize }} known to the model
+        <div class="mt-1 rp-chips">{% for f in trace.features %}<span class="badge rp-term">{{ f.term }} &middot; {{ f.weight }}</span> {% empty %}<span class="small text-secondary">None of the words were seen in training.</span>{% endfor %}</div></li>
+    </ol></section></div>
+  <div class="col-lg-5"><section class="rp-card p-4 h-100 rp-ai-panel"><h2 class="rp-section"><i class="ic ic-spark" aria-hidden="true"></i>Multinomial Naive Bayes result</h2>
+    {% with p=trace.prediction %}
+      {% if p.probabilities %}
+        {% for code, prob in p.probabilities.items %}<div class="rp-prob"><div class="rp-prob-row"><span>{{ code }}</span><span>{% widthratio prob 1 100 %}%</span></div><div class="progress" role="img" aria-label="{{ code }} {% widthratio prob 1 100 %} percent"><div class="progress-bar" style="width:{% widthratio prob 1 100 %}%"></div></div></div>{% endfor %}
+        <p class="mb-1 mt-3"><strong>{{ p.department_code }}</strong> with {% widthratio p.confidence 1 100 %}% confidence.</p>
+        <p class="small mb-2">{% if p.needs_verification %}Below the threshold of {{ p.threshold }}: this would go to the verification queue.{% else %}At or above the threshold of {{ p.threshold }}: this would be routed automatically.{% endif %}</p>
+        {% if p.top_terms %}<p class="small text-secondary mb-1">Words that pushed the model toward this answer, compared with the next most likely department:</p>
+          <p class="rp-chips mb-0">{% for t in p.top_terms %}<span class="badge rp-term">{{ t.term }}</span> {% endfor %}</p>{% endif %}
+      {% else %}<p class="mb-0">The model has no basis for a prediction ({% if p.reason == "no_usable_text" %}no usable words{% else %}none of the words were seen in training{% endif %}). This would go to the verification queue.</p>{% endif %}
+    {% endwith %}
+    <p class="small text-secondary mt-3 mb-0">Model version {{ trace.model.version }}.</p></section></div>
+</div>
+{% endblock %}

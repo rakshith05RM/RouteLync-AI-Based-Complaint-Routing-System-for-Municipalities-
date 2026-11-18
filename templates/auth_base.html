@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{# Split-screen layout for sign-in, registration, verification and password reset. Pages fill {% block content %} with a heading and a form card. #}
+{% block body_class %}rp-authbody{% endblock %}
+{% block shell %}
+<div class="rp-auth">
+  <aside class="rp-auth-aside">
+    <a class="rp-brand" href="{% url 'core:home' %}">{% include "partials/brand_mark.html" %}<span>Route<span>Lync</span></span></a>
+    {% block auth_pitch %}
+      <div class="rp-auth-pitch">
+        <h2>Civic problems, routed to the right desk.</h2>
+        <p>Describe the issue once. RouteLync sends it to the responsible department and keeps you informed until it is fixed.</p>
+        <ul class="rp-auth-points">
+          <li><span class="rp-chip-ic"><i class="ic ic-spark" aria-hidden="true"></i></span><span>A trained classifier reads your description and chooses the department.</span></li>
+          <li><span class="rp-chip-ic"><i class="ic ic-shield" aria-hidden="true"></i></span><span>When it is not sure, an administrator decides instead of guessing.</span></li>
+          <li><span class="rp-chip-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></span><span>You confirm the fix, or reopen the complaint if the problem remains.</span></li>
+        </ul>
+        <div class="rp-auth-route" aria-hidden="true">
+          <span class="rp-auth-route-label">A CLEAR PATH FOR EVERY REPORT</span>
+          <div class="rp-auth-route-steps">
+            <span><i class="ic ic-pin" aria-hidden="true"></i>Report</span>
+            <span><i class="ic ic-arrow-right" aria-hidden="true"></i></span>
+            <span><i class="ic ic-building" aria-hidden="true"></i>Route</span>
+            <span><i class="ic ic-arrow-right" aria-hidden="true"></i></span>
+            <span><i class="ic ic-check-circle" aria-hidden="true"></i>Track</span>
+          </div>
+        </div>
+      </div>
+    {% endblock %}
+    <div class="rp-auth-foot">&copy; {% now "Y" %} {{ SITE_NAME }} · {{ SITE_TAGLINE }}</div>
+  </aside>
+  <main id="main" class="rp-auth-main">
+    {% include "partials/messages.html" %}
+    <div class="rp-auth-box{% block auth_box_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

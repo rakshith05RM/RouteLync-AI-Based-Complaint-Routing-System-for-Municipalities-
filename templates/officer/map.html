@@ -1,0 +1,25 @@
+{% extends "officer/base_officer.html" %}
+{% load static %}
+{% block title %}Complaint map{% endblock %}
+{% block heading %}Map{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endblock %}
+{% block officer_content %}
+{% include "officer/_filters.html" with compact=True %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 small">
+  <span class="text-secondary">
+    {% if located_total %}Showing {{ markers|length }} complaint{{ markers|length|pluralize }} with a GPS location.{% else %}No complaints with a GPS location match this selection.{% endif %}
+    {% if missing_gps %}{{ missing_gps }} more {{ missing_gps|pluralize:"has,have" }} no GPS and appear only in the complaints list.{% endif %}
+    {% if truncated %}Only the first {{ limit }} are drawn; narrow the filters to see the rest.{% endif %}
+  </span>
+  <span class="rp-legend">
+    <span><i style="background:#B42318"></i>Critical</span> <span><i style="background:#EA580C"></i>High</span> <span><i style="background:#A87532"></i>Medium</span> <span><i style="background:#64748B"></i>Low</span>
+  </span>
+</div>
+<div id="map" class="rp-map" data-tile-url="{{ LOCATION_TILE_URL }}" data-tile-attribution="{{ LOCATION_TILE_ATTRIBUTION }}" role="application" aria-label="Map of complaints"></div>
+{{ markers|json_script:"map-data" }}
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'js/ward_filter.js' %}"></script>
+<script src="{% static 'js/officer_map.js' %}"></script>
+{% endblock %}

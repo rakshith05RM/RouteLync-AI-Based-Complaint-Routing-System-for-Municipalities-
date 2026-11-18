@@ -1,0 +1,42 @@
+{% extends "adminpanel/base_admin.html" %}
+{% load static %}
+{% load form_tags %}
+{% block title %}All complaints{% endblock %}
+{% block heading %}Complaints{% endblock %}
+{% block admin_content %}
+<form method="get" class="rp-card rp-filters">
+  {% if filter_errors %}<div class="alert alert-warning py-2 small">Some filters were ignored: {% for f, errs in filter_errors.items %}{% for e in errs %}{{ e }} {% endfor %}{% endfor %}</div>{% endif %}
+  <div class="row g-3">
+    <div class="col-12 col-lg-4"><label class="form-label" for="id_q">Search</label><div class="rp-search"><i class="ic ic-search" aria-hidden="true"></i>{{ form.q|add_class:"form-control form-control-sm" }}</div></div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_department">Department</label>{{ form.department|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_status">Status</label>{{ form.status|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_priority">Priority</label>{{ form.priority|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_sort">Sort by</label>{{ form.sort|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_area">Area</label>{{ form.area|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_ward">Ward</label>{{ form.ward|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_escalation">Escalation</label>{{ form.escalation|add_class:"form-select form-select-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_date_from">From</label>{{ form.date_from|add_class:"form-control form-control-sm" }}</div>
+    <div class="col-6 col-lg-2"><label class="form-label" for="id_date_to">To</label>{{ form.date_to|add_class:"form-control form-control-sm" }}</div>
+    <div class="col-12 col-lg-2 d-flex align-items-end gap-2"><button class="btn btn-rp btn-sm" type="submit"><i class="ic ic-filter" aria-hidden="true"></i>Apply</button><a class="btn btn-outline-rp btn-sm" href="{% url 'adminpanel:complaints' %}">Reset</a></div>
+  </div>
+</form>
+{% if complaints %}
+<div class="rp-card"><div class="table-responsive"><table class="table align-middle mb-0 rp-table rp-table-stack">
+  <thead><tr><th>ID</th><th>Issue</th><th>Department</th><th>Location</th><th>Priority</th><th>Status</th><th>Assigned to</th></tr></thead>
+  <tbody>{% for complaint in complaints %}
+    <tr><td class="text-nowrap rp-cell-main"><a class="rp-ref" href="{% url 'adminpanel:complaint' complaint.pk %}">{{ complaint.reference }}</a></td>
+      <td data-label="Issue"><span class="rp-table-title">{{ complaint.title|truncatechars:50 }}</span></td>
+      <td data-label="Department">{{ complaint.department.name|default:"&ndash;" }}</td>
+      <td data-label="Location" class="small">{% if complaint.location.area %}{{ complaint.location.area.name }}{% else %}{{ complaint.location.address_text|truncatechars:50 }}{% endif %}{% if complaint.location.ward %}, Ward {{ complaint.location.ward.number }}{% endif %}</td>
+      <td data-label="Priority">{% include "partials/priority_badge.html" %}</td>
+      <td data-label="Status"><span>{% include "partials/status_badge_staff.html" %}{% if complaint.escalation_level %}<span class="badge rp-escalated d-block mt-1">Escalated</span>{% endif %}{% if complaint.possible_duplicate %}<span class="badge rp-await d-block mt-1">Possible duplicate</span>{% endif %}</span></td>
+      <td data-label="Assigned to" class="small">{% if complaint.active_assignment_list %}{{ complaint.active_assignment_list.0.assigned_to.full_name }}{% else %}<span class="text-secondary">&ndash;</span>{% endif %}</td></tr>
+  {% endfor %}</tbody></table></div></div>
+<div class="rp-listfoot"><span>{{ page_obj.paginator.count }} complaint{{ page_obj.paginator.count|pluralize }}</span>
+  {% if is_paginated %}<ul class="pagination pagination-sm mb-0">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}</ul>{% endif %}</div>
+{% else %}<div class="rp-card rp-empty"><div class="rp-empty-ic"><i class="ic ic-search" aria-hidden="true"></i></div><p class="rp-empty-title mb-0">{% if is_filtered %}No complaints match these filters.{% else %}No complaints yet.{% endif %}</p></div>{% endif %}
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/ward_filter.js' %}"></script>{% endblock %}

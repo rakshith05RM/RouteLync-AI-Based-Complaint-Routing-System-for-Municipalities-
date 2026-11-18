@@ -1,0 +1,65 @@
+{% extends "officer/base_officer.html" %}
+{% load static %}
+{% block title %}{{ department.name }} complaints{% endblock %}
+{% block heading %}Complaints{% endblock %}
+{% block officer_content %}
+<div class="rp-stats rp-stats-7">
+  <div class="rp-stat"><span class="rp-stat-ic"><i class="ic ic-inbox" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.open }}</span><span class="rp-stat-l">Open</span></div>
+  <div class="rp-stat"><span class="rp-stat-ic"><i class="ic ic-clock" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.pending }}</span><span class="rp-stat-l">Pending</span></div>
+  <div class="rp-stat rp-stat-teal"><span class="rp-stat-ic"><i class="ic ic-activity" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.in_progress }}</span><span class="rp-stat-l">In progress</span></div>
+  <div class="rp-stat {% if summary.overdue %}rp-stat-alert{% endif %}"><span class="rp-stat-ic"><i class="ic ic-alert-triangle" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.overdue }}</span><span class="rp-stat-l">Overdue</span></div>
+  <div class="rp-stat"><span class="rp-stat-ic"><i class="ic ic-alert-circle" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.urgent }}</span><span class="rp-stat-l">Critical or high</span></div>
+  <div class="rp-stat {% if summary.escalated %}rp-stat-alert{% endif %}"><span class="rp-stat-ic"><i class="ic ic-flag" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.escalated }}</span><span class="rp-stat-l">Escalated</span></div>
+  <div class="rp-stat {% if summary.awaiting %}rp-stat-note{% endif %}"><span class="rp-stat-ic"><i class="ic ic-shield" aria-hidden="true"></i></span><span class="rp-stat-n">{{ summary.awaiting }}</span><span class="rp-stat-l">Awaiting verification</span></div>
+</div>
+
+{% include "officer/_filters.html" %}
+
+{% if complaints %}
+<div class="rp-card">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0 rp-table rp-table-stack">
+      <thead><tr><th>ID</th><th>Issue</th><th>Location</th><th>Priority</th><th>Status</th><th>Assigned to</th><th>SLA</th><th>AI</th></tr></thead>
+      <tbody>
+      {% for complaint in complaints %}
+        <tr>
+          <td class="text-nowrap rp-cell-main"><a class="rp-ref" href="{% url 'officer:detail' complaint.pk %}">{{ complaint.reference }}</a></td>
+          <td data-label="Issue"><span class="rp-table-title">{{ complaint.title|truncatechars:60 }}</span></td>
+          <td data-label="Location"><span><span class="d-block">{% if complaint.location.area %}{{ complaint.location.area.name }}{% else %}{{ complaint.location.address_text|truncatechars:50 }}{% endif %}{% if complaint.location.ward %}, Ward {{ complaint.location.ward.number }}{% endif %}</span>
+              {% if complaint.location.street %}<span class="small text-secondary">{{ complaint.location.street }}</span>{% endif %}</span></td>
+          <td data-label="Priority">{% include "partials/priority_badge.html" %}</td>
+          <td data-label="Status"><span>{% include "partials/status_badge_staff.html" %}{% if complaint.escalation_level %}<span class="badge rp-escalated d-block mt-1">Escalated &middot; {% if complaint.escalation_level == 1 %}Dept. Head{% else %}Administrator{% endif %}</span>{% endif %}{% if complaint.awaiting_verification %}<span class="badge rp-await d-block mt-1">Awaiting verification</span>{% endif %}{% if complaint.possible_duplicate %}<span class="badge rp-await d-block mt-1">Possible duplicate</span>{% endif %}</span></td>
+          <td data-label="Assigned to" class="small">{% if complaint.active_assignment_list %}{{ complaint.active_assignment_list.0.assigned_to.full_name }}{% else %}<span class="text-secondary">Unassigned</span>{% endif %}</td>
+          <td data-label="SLA" class="text-nowrap small">{% if complaint.sla_active %}{% with s=complaint.sla_state %}<span class="{% if s.is_overdue %}text-danger fw-semibold{% endif %}">{{ s.label }}</span>{% endwith %}{% else %}<span class="text-secondary">&ndash;</span>{% endif %}</td>
+          <td data-label="AI" class="small">{% if complaint.ai_confidence is not None %}{% widthratio complaint.ai_confidence 1 100 %}%{% else %}<span class="text-secondary">&ndash;</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="rp-listfoot">
+  <span>{{ page_obj.paginator.count }} complaint{{ page_obj.paginator.count|pluralize }}</span>
+  {% if is_paginated %}
+  <nav aria-label="Pages"><ul class="pagination pagination-sm mb-0">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}
+  </ul></nav>
+  {% endif %}
+</div>
+{% else %}
+<div class="rp-card rp-empty">
+  {% if is_filtered %}
+    <div class="rp-empty-ic"><i class="ic ic-search" aria-hidden="true"></i></div>
+    <p class="rp-empty-title">No complaints match these filters.</p>
+    <a class="btn btn-outline-rp btn-sm" href="{% url 'officer:dashboard' %}">Clear filters</a>
+  {% else %}
+    <div class="rp-empty-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></div>
+    <p class="rp-empty-title">There are no open complaints for {{ department.name }}.</p>
+    <p class="text-secondary mb-0">New complaints routed to this department will appear here.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/ward_filter.js' %}"></script>{% endblock %}

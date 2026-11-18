@@ -1,0 +1,31 @@
+{% extends "adminpanel/base_admin.html" %}
+{% block title %}Users{% endblock %}
+{% block heading %}Users{% endblock %}
+{% block page_actions %}<div class="rp-page-actions"><a class="btn btn-rp btn-sm" href="{% url 'adminpanel:user_new' %}"><i class="ic ic-plus" aria-hidden="true"></i>Add staff account</a></div>{% endblock %}
+{% block admin_content %}
+<form method="get" class="rp-card rp-filters">
+  <div class="d-flex flex-wrap gap-2 align-items-center">
+    <div class="rp-search" style="flex:1 1 14rem"><i class="ic ic-search" aria-hidden="true"></i><input type="search" name="q" value="{{ f_q }}" class="form-control form-control-sm" placeholder="Name, email or phone" aria-label="Search users"></div>
+    <select name="role" class="form-select form-select-sm" style="width:11rem" aria-label="Role"><option value="">All roles</option>{% for v, l in roles %}<option value="{{ v }}" {% if f_role == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+    <select name="active" class="form-select form-select-sm" style="width:9rem" aria-label="Status"><option value="">Any status</option><option value="yes" {% if f_active == "yes" %}selected{% endif %}>Active</option><option value="no" {% if f_active == "no" %}selected{% endif %}>Inactive</option></select>
+    <button class="btn btn-rp btn-sm" type="submit"><i class="ic ic-filter" aria-hidden="true"></i>Filter</button>
+  </div>
+</form>
+<div class="rp-card"><div class="table-responsive"><table class="table align-middle mb-0 rp-table">
+  <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+  <tbody>{% for u in users %}<tr>
+    <td><span class="fw-semibold">{{ u.full_name }}</span><div class="small text-secondary">{{ u.email }}</div></td>
+    <td>{{ u.get_role_display }}{% if u.officer_profile.is_department_head %} <span class="badge rp-term">Head</span>{% endif %}</td>
+    <td>{{ u.officer_profile.department.name|default:u.worker_profile.department.name|default:"&ndash;" }}</td>
+    <td>{% if u.is_active %}<span class="rp-status rp-status-resolved">Active</span>{% else %}<span class="rp-status rp-status-rejected">Inactive</span>{% endif %}{% if u.worker_profile and not u.worker_profile.is_available %} <span class="small text-secondary">&middot; unavailable</span>{% endif %}</td>
+    <td class="text-end text-nowrap">
+      {% if u.pk != request.user.pk %}
+      <form method="post" action="{% url 'adminpanel:user_action' u.pk 'deactivate' %}" class="d-inline">{% csrf_token %}{% if u.is_active %}<button class="btn btn-outline-rp btn-sm" type="submit">Deactivate</button>{% endif %}</form>
+      <form method="post" action="{% url 'adminpanel:user_action' u.pk 'activate' %}" class="d-inline">{% csrf_token %}{% if not u.is_active %}<button class="btn btn-rp btn-sm" type="submit">Activate</button>{% endif %}</form>
+      {% endif %}
+      {% if u.worker_profile %}<form method="post" action="{% url 'adminpanel:user_action' u.pk 'unavailable' %}" class="d-inline">{% csrf_token %}{% if u.worker_profile.is_available %}<button class="btn btn-outline-rp btn-sm" type="submit">Mark unavailable</button>{% endif %}</form>
+        <form method="post" action="{% url 'adminpanel:user_action' u.pk 'available' %}" class="d-inline">{% csrf_token %}{% if not u.worker_profile.is_available %}<button class="btn btn-rp btn-sm" type="submit">Mark available</button>{% endif %}</form>{% endif %}
+      {% if u.officer_profile and not u.officer_profile.is_department_head %}<form method="post" action="{% url 'adminpanel:user_action' u.pk 'make_head' %}" class="d-inline">{% csrf_token %}<button class="btn btn-outline-rp btn-sm" type="submit">Make department head</button></form>{% endif %}
+    </td></tr>{% endfor %}</tbody></table></div></div>
+{% if is_paginated %}<ul class="pagination pagination-sm mt-3">{% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}<li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>{% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}</ul>{% endif %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base_app.html" %}
+{% block title %}My profile{% endblock %}
+{% block content_class %} rp-content-narrow{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <p class="rp-eyebrow">Account</p>
+      <h1 class="rp-title">My profile</h1>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <section class="rp-card p-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <span class="rp-avatar" style="width:3.25rem;height:3.25rem;font-size:1.25rem" aria-hidden="true">{{ user.get_short_name|slice:":1"|upper }}</span>
+          <div><div class="fw-semibold">{{ user.get_short_name }}</div><span class="rp-term">{{ user.get_role_display }}</span></div>
+        </div>
+        <dl class="rp-dl">
+          <dt>Email</dt><dd>{{ user.email }}</dd>
+          <dt>Role</dt><dd>{{ user.get_role_display }}</dd>
+        </dl>
+      </section>
+    </div>
+    <div class="col-lg-7">
+      <form method="post" novalidate class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-edit" aria-hidden="true"></i>Your details</h2>
+        {% csrf_token %}
+        {% include "partials/form_errors.html" %}
+        {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+        <div class="rp-form-actions">
+          <button class="btn btn-rp" type="submit">Save changes</button>
+          <a class="btn btn-outline-rp" href="{% url 'accounts:password_change' %}"><i class="ic ic-key" aria-hidden="true"></i>Change password</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

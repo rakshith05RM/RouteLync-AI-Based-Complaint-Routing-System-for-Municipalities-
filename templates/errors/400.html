@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Bad request{% endblock %}
+{% block content %}
+<div class="rp-error">
+  <div class="rp-error-inner">
+    <p class="rp-errcode">400</p>
+    <h1>We could not understand that request</h1>
+    <p>Please go back and try again.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+      <a class="btn btn-rp" href="/"><i class="ic ic-home" aria-hidden="true"></i>Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{# Styled replacement for the browser confirm() box. routelync.js opens it for [data-confirm] elements (falls back to confirm() if unavailable). #}
+<div class="modal fade" id="rpConfirm" tabindex="-1" aria-labelledby="rpConfirmTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-4 pb-3">
+        <div class="d-flex gap-3 align-items-start">
+          <span class="rp-confirm-ic"><i class="ic ic-alert-triangle" aria-hidden="true"></i></span>
+          <div>
+            <h2 class="h5 mb-2" id="rpConfirmTitle">Are you sure?</h2>
+            <p class="text-secondary mb-0" id="rpConfirmMessage"></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-2 px-4 pb-4">
+        <button type="button" class="btn btn-outline-rp" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-rp" id="rpConfirmOk">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>

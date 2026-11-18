@@ -1,0 +1,143 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}{{ complaint.reference }}{% endblock %}
+{% block extra_head %}{% if complaint.location.has_gps %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'complaints:my_complaints' %}">My complaints</a></li><li class="breadcrumb-item active" aria-current="page">{{ complaint.reference }}</li></ol></nav>
+      <p class="rp-eyebrow">{{ complaint.reference }} · submitted {{ complaint.created_at|date:"d M Y, H:i" }}</p>
+      <h1 class="rp-title">{{ complaint.title }}</h1>
+    </div>
+    <div class="rp-page-actions">{% include "partials/status_badge.html" %}</div>
+  </div>
+
+  <div class="rp-detail">
+    <div class="rp-stack">
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-activity" aria-hidden="true"></i>Progress</h2>
+        <ol class="rp-tracker" aria-label="Complaint progress">
+          {% for step in tracker %}
+            <li class="rp-step rp-step-{{ step.state }}">
+              <span class="rp-step-mark" aria-hidden="true">{% if step.state == "done" %}&#10003;{% endif %}</span>
+              <span class="rp-step-label">{{ step.label }}</span>
+              {% if step.timestamp %}<span class="rp-step-time">{{ step.timestamp|date:"d M, H:i" }}</span>{% endif %}
+              <span class="visually-hidden">{{ step.state }}</span>
+            </li>
+          {% endfor %}
+        </ol>
+        {% if proof_photo %}
+        <figure class="rp-proof mt-4 mb-0">
+          <span class="rp-photo"><img src="{% url 'complaints:resolution_photo' complaint.pk %}" alt="Photo of the completed work on {{ complaint.reference }}" style="max-height:360px"></span>
+          <figcaption class="small mt-2">Photo of the completed work{% if complaint.resolved_at %}, verified {{ complaint.resolved_at|date:"d M Y, H:i" }}{% endif %}.</figcaption>
+        </figure>
+        {% endif %}
+      </section>
+
+      {% if can_respond %}
+      <section class="rp-card p-4 rp-callout">
+        <h2 class="rp-section"><i class="ic ic-check-circle" aria-hidden="true"></i>Is the problem fixed?</h2>
+        {% if resolution %}<p class="rp-text-block mb-3">{{ resolution.remarks }}</p>{% endif %}
+        <div class="d-flex flex-wrap gap-2">
+          <form method="post" action="{% url 'complaints:confirm' complaint.pk %}">{% csrf_token %}<button class="btn btn-rp" type="submit"><i class="ic ic-check" aria-hidden="true"></i>Yes, it is fixed</button></form>
+          {% if can_reopen %}<button class="btn btn-outline-rp" type="button" data-bs-toggle="collapse" data-bs-target="#reopen-box" aria-expanded="false" aria-controls="reopen-box">No, it is not fixed</button>{% endif %}
+        </div>
+        {% if can_reopen %}
+        <div class="collapse mt-3" id="reopen-box">
+          <form method="post" action="{% url 'complaints:reopen' complaint.pk %}">
+            {% csrf_token %}
+            <label class="form-label" for="id_reason">What is still wrong?</label>
+            <textarea name="reason" id="id_reason" rows="3" maxlength="400" required class="form-control mb-2"></textarea>
+            <button class="btn btn-rp btn-sm" type="submit">Reopen complaint</button>
+          </form>
+        </div>
+        {% else %}<p class="small text-secondary mt-3 mb-0">The {{ reopen_days }}-day period for reopening this complaint has ended. If the problem remains, please submit a new complaint.</p>{% endif %}
+      </section>
+      {% elif resolution and complaint.status == "CLOSED" %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-check-circle" aria-hidden="true"></i>How it was resolved</h2>
+        <p class="rp-text-block mb-0">{{ resolution.remarks }}</p>
+      </section>
+      {% endif %}
+
+      {% if feedback %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-star" aria-hidden="true"></i>Your feedback</h2>
+        <p class="mb-1"><span class="rp-stars" aria-label="{{ feedback.rating }} out of 5">{% for i in "12345" %}{% if forloop.counter <= feedback.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</span></p>
+        {% if feedback.comment %}<p class="mb-0">{{ feedback.comment }}</p>{% endif %}
+      </section>
+      {% elif can_give_feedback %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-star" aria-hidden="true"></i>How did we do?</h2>
+        <form method="post" action="{% url 'complaints:feedback' complaint.pk %}">
+          {% csrf_token %}
+          <fieldset class="mb-3">
+            <legend class="form-label">Your rating</legend>
+            <div class="d-flex gap-3 flex-wrap">
+              {% for value in "12345" %}
+              <div class="form-check"><input class="form-check-input" type="radio" name="rating" id="rating-{{ value }}" value="{{ value }}" required>
+                <label class="form-check-label" for="rating-{{ value }}">{{ value }}</label></div>
+              {% endfor %}
+            </div>
+            <div class="form-text">1 = very unhappy, 5 = very happy</div>
+          </fieldset>
+          <label class="form-label" for="id_comment">Comments (optional)</label>
+          <textarea name="comment" id="id_comment" rows="3" maxlength="500" class="form-control mb-2"></textarea>
+          <button class="btn btn-rp btn-sm" type="submit">Send feedback</button>
+        </form>
+      </section>
+      {% endif %}
+
+      {% if public_remarks %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Updates</h2>
+        {% for r in public_remarks %}<div class="rp-note"><div class="rp-note-meta">{{ r.created_at|date:"d M Y, H:i" }}</div><div class="rp-text-block">{{ r.text }}</div></div>{% endfor %}
+      </section>
+      {% endif %}
+
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-doc" aria-hidden="true"></i>Description</h2>
+        <p class="rp-text-block mb-0">{{ complaint.description }}</p>
+      </section>
+    </div>
+
+    <div class="rp-stack rp-detail-aside">
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-pin" aria-hidden="true"></i>Location</h2>
+        {% with loc=complaint.location %}
+        <dl class="rp-dl">
+          {% if complaint.department %}<dt>Department</dt><dd>{{ complaint.department.name }}</dd>{% endif %}
+          <dt>Area / Ward</dt><dd>{% if loc.area %}{{ loc.area.name }}{% else %}<span class="text-secondary">not provided</span>{% endif %}{% if loc.ward %}, Ward {{ loc.ward.number }}{% endif %}</dd>
+          {% if loc.street %}<dt>Street</dt><dd>{{ loc.street }}</dd>{% endif %}
+          {% if loc.landmark %}<dt>Landmark</dt><dd>{{ loc.landmark }}</dd>{% endif %}
+          {% if loc.building %}<dt>Building</dt><dd>{{ loc.building }}</dd>{% endif %}
+          <dt>Address</dt><dd>{{ loc.address_text }}</dd>
+          <dt>GPS</dt><dd>{% if loc.has_gps %}{{ loc.latitude }}, {{ loc.longitude }}{% else %}<span class="text-secondary">not provided</span>{% endif %}</dd>
+        </dl>
+        {% if loc.has_gps %}<div id="complaint-map" class="rp-map rp-map-sm mt-3" data-lat="{{ loc.latitude }}" data-lng="{{ loc.longitude }}" data-priority="{{ complaint.priority }}" data-tile-url="{{ LOCATION_TILE_URL }}" data-tile-attribution="{{ LOCATION_TILE_ATTRIBUTION }}" aria-label="Complaint location map"></div>{% endif %}
+        {% endwith %}
+      </section>
+
+      {% if complaint.images.all %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-camera" aria-hidden="true"></i>Photo</h2>
+        <div class="rp-photos">
+        {% for image in complaint.images.all %}
+          <span class="rp-photo"><img src="{% url 'complaints:image' complaint.pk image.pk %}" alt="Photo submitted with {{ complaint.reference }}" style="max-height:360px"></span>
+        {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-clock" aria-hidden="true"></i>History</h2>
+        <ol class="rp-path mb-0">
+          {% for entry in timeline %}
+            <li><strong>{{ entry.label }}</strong><span>{{ entry.timestamp|date:"d M Y, H:i" }}</span></li>
+          {% endfor %}
+        </ol>
+      </section>
+    </div>
+  </div>
+{% endblock %}
+{% block extra_js %}{% if complaint.location.has_gps %}<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script><script src="{% static 'js/complaint_map.js' %}"></script>{% endif %}{% endblock %}

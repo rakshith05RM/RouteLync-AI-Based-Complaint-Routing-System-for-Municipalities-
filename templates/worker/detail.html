@@ -1,0 +1,107 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}{{ complaint.reference }}{% endblock %}
+{% block extra_head %}{% if map_point %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'worker:dashboard' %}">My work</a></li><li class="breadcrumb-item active" aria-current="page">{{ complaint.reference }}</li></ol></nav>
+      <p class="rp-eyebrow">{{ complaint.reference }}</p>
+      <h1 class="rp-title">{{ complaint.title }}</h1>
+    </div>
+    <div class="rp-page-actions">{% include "partials/status_badge_staff.html" %}</div>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-8 rp-stack">
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-alert-circle" aria-hidden="true"></i>Problem</h2>
+        <p class="rp-text-block mb-0">{{ complaint.description }}</p>
+      </section>
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-pin" aria-hidden="true"></i>Location</h2>
+        {% with loc=complaint.location %}
+        <dl class="rp-dl mb-3">
+          <dt>Area / Ward</dt><dd>{% if loc.area %}{{ loc.area.name }}{% else %}<span class="text-secondary">Not provided</span>{% endif %}{% if loc.ward %}, Ward {{ loc.ward.number }}{% endif %}</dd>
+          {% if loc.street %}<dt>Street</dt><dd>{{ loc.street }}</dd>{% endif %}
+          {% if loc.landmark %}<dt>Landmark</dt><dd>{{ loc.landmark }}</dd>{% endif %}
+          {% if loc.building %}<dt>Building</dt><dd>{{ loc.building }}</dd>{% endif %}
+          <dt>Address</dt><dd>{{ loc.address_text }}</dd>
+        </dl>
+        {% endwith %}
+        {% if map_point %}<div id="complaint-map" class="rp-map rp-map-sm" data-lat="{{ map_point.lat }}" data-lng="{{ map_point.lng }}" data-priority="{{ complaint.priority }}" data-tile-url="{{ LOCATION_TILE_URL }}" data-tile-attribution="{{ LOCATION_TILE_ATTRIBUTION }}"></div>{% endif %}
+      </section>
+      {% if evidence %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-camera" aria-hidden="true"></i>Photo from the citizen</h2>
+        <div class="rp-photos">{% for image in evidence %}<span class="rp-photo"><img src="{% url 'complaints:image' complaint.pk image.pk %}" alt="Photo submitted with {{ complaint.reference }}" style="max-height:320px"></span>{% endfor %}</div>
+      </section>
+      {% endif %}
+      {% if remarks %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Remarks</h2>
+        {% for r in remarks %}<div class="rp-note"><div class="rp-note-meta">{{ r.author.full_name|default:"Unknown" }} &middot; {{ r.created_at|date:"d M Y, H:i" }}</div><div class="rp-text-block">{{ r.text }}</div></div>{% endfor %}
+      </section>
+      {% endif %}
+      {% if resolutions %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-check-circle" aria-hidden="true"></i>Completed work</h2>
+        {% for res in resolutions %}
+          <div class="rp-note"><div class="rp-note-meta">{{ res.resolved_at|date:"d M Y, H:i" }} &middot; {{ res.get_outcome_display }}</div>
+            <div class="rp-text-block">{{ res.remarks }}</div>
+            {% if res.review_note %}<div class="small text-danger mt-1">Officer: {{ res.review_note }}</div>{% endif %}</div>
+        {% endfor %}
+      </section>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4 rp-stack">
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-list" aria-hidden="true"></i>Job</h2>
+        <dl class="mb-0 rp-facts">
+          <dt>Status</dt><dd>{% include "partials/status_badge_staff.html" %}</dd>
+          <dt>Priority</dt><dd>{% include "partials/priority_badge.html" %}</dd>
+          <dt>Deadline</dt><dd>{% if sla %}{{ complaint.sla_deadline|date:"d M Y, H:i" }}<span class="d-block small {% if sla.is_overdue %}text-danger fw-semibold{% else %}text-secondary{% endif %}">{{ sla.label }}</span>{% else %}&ndash;{% endif %}</dd>
+          <dt>Contact</dt><dd>{{ complaint.citizen.full_name }}{% if complaint.citizen.phone %}<span class="d-block small">{{ complaint.citizen.phone }}</span>{% endif %}</dd>
+        </dl>
+      </section>
+
+      {% if pending_resolution %}
+      <section class="rp-card p-4 rp-callout"><h2 class="rp-section"><i class="ic ic-clock" aria-hidden="true"></i>Waiting for the officer</h2><p class="mb-0">Your completed work was submitted and is waiting for verification.</p></section>
+      {% endif %}
+
+      {% if can_start %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-activity" aria-hidden="true"></i>Start the job</h2>
+        <form method="post" action="{% url 'worker:start' complaint.pk %}">{% csrf_token %}<button class="btn btn-rp w-100" type="submit">Start work</button></form>
+      </section>
+      {% endif %}
+
+      {% if can_complete %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-check-circle" aria-hidden="true"></i>Mark as completed</h2>
+        <form method="post" action="{% url 'worker:complete' complaint.pk %}" enctype="multipart/form-data" data-busy="Uploading&hellip;">
+          {% csrf_token %}
+          <label class="form-label" for="id_remarks">What was done</label>
+          <textarea name="remarks" id="id_remarks" rows="3" maxlength="1000" required class="form-control mb-3"></textarea>
+          <label class="form-label" for="id_photo">Photo of the finished work <span class="rp-req" aria-hidden="true">*</span></label>
+          <input type="file" name="photo" id="id_photo" accept="image/jpeg,image/png,image/webp" required class="form-control mb-1">
+          <div class="form-text mb-3">Required. The citizen will see this photo as proof that the problem was fixed.</div>
+          <button class="btn btn-rp w-100" type="submit">Submit for verification</button>
+        </form>
+      </section>
+      {% endif %}
+
+      {% if complaint.status == "ASSIGNED_TO_WORKER" or complaint.status == "IN_PROGRESS" %}
+      <section class="rp-card p-4">
+        <h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Add a remark</h2>
+        <form method="post" action="{% url 'worker:remark' complaint.pk %}">
+          {% csrf_token %}
+          <textarea name="text" rows="2" maxlength="1000" required class="form-control mb-2" aria-label="Remark"></textarea>
+          <button class="btn btn-outline-rp btn-sm" type="submit">Add remark</button>
+        </form>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+{% block extra_js %}{% if map_point %}<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script><script src="{% static 'js/complaint_map.js' %}"></script>{% endif %}{% endblock %}

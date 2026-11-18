@@ -1,0 +1,98 @@
+{% extends "base_app.html" %}
+{% load static %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endblock %}
+{% block title %}New complaint{% endblock %}
+{% block content_class %} rp-content-form{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'complaints:my_complaints' %}">My complaints</a></li><li class="breadcrumb-item active" aria-current="page">New complaint</li></ol></nav>
+      <h1 class="rp-title">Report a problem</h1>
+      <p class="rp-sub">Fields marked <span class="text-danger">*</span> are required. RouteLync will route your complaint to the right department.</p>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" novalidate id="complaint-form" data-busy="Submitting&hellip;">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% if rejection %}
+    <div class="alert alert-warning" role="alert">
+      <strong>Not submitted: {{ rejection.label }}.</strong> {{ rejection.message }}
+      {% if rejection.verdict.value == "UNSUPPORTED" %}<span class="d-block">Supported categories: {{ supported }}.</span>{% endif %}
+      <span class="d-block small mt-1">No complaint was created. Your text{% if attempt.image %} and photo are{% else %} is{% endif %} kept below; correct the description and submit again.</span>
+    </div>
+    {% endif %}
+    <input type="hidden" name="attempt" value="{{ attempt.pk|default:'' }}">
+    {{ form.submission_token }}
+    {% if form.latitude.errors or form.longitude.errors or form.location_token.errors or form.location_search.errors %}
+    <div class="alert alert-danger" role="alert">{{ form.latitude.errors|join:" " }} {{ form.longitude.errors|join:" " }} {{ form.location_token.errors|join:" " }} {{ form.location_search.errors|join:" " }}</div>
+    {% endif %}
+
+    <section class="rp-card rp-formsec">
+      <div class="rp-formsec-head"><span class="rp-stepno" aria-hidden="true">1</span>
+        <h2 class="rp-section">1. The issue<small>What is wrong, in your own words</small></h2></div>
+      {% include "partials/form_field.html" with field=form.title %}
+      {% include "partials/form_field.html" with field=form.description %}
+      <div class="form-text d-flex justify-content-between" aria-live="polite">
+        <span id="desc-words" data-min="{{ min_words }}"></span><span><span id="desc-count">0</span> / 2000</span></div>
+    </section>
+
+    <section class="rp-card rp-formsec">
+      <div class="rp-formsec-head"><span class="rp-stepno" aria-hidden="true">2</span>
+        <h2 class="rp-section">2. Where is it?<small>Search, tap the map or use your location</small></h2></div>
+      <div class="mb-3" id="location-picker" data-search-url="{% url 'geo:search' %}" data-reverse-url="{% url 'geo:reverse' %}" data-bbox="{{ service_bbox }}" data-tile-url="{{ LOCATION_TILE_URL }}" data-tile-attribution="{{ LOCATION_TILE_ATTRIBUTION }}">
+        <label for="location-search" class="form-label">Search for the place <span class="rp-req" aria-hidden="true">*</span></label>
+        <div class="position-relative rp-search">
+          <i class="ic ic-search" aria-hidden="true"></i>
+          {{ form.location_search }}
+          <ul id="location-results" class="list-group position-absolute w-100 shadow rp-suggest" role="listbox" aria-label="Matching places" hidden></ul>
+        </div>
+        <div class="form-text" id="location-status" role="status" aria-live="polite">Search, tap the map, or use your current location. Drag the pin to adjust it.</div>
+        <div id="location-map" class="rp-map rp-map-form mt-2" role="application" aria-label="Map: choose the location of the problem"></div>
+        <p class="small text-secondary mb-0 mt-1" id="location-chosen" aria-live="polite"></p>
+      </div>
+      <div class="row">
+        <div class="col-md-6">{% include "partials/form_field.html" with field=form.area %}</div>
+        <div class="col-md-6">{% include "partials/form_field.html" with field=form.ward %}</div>
+      </div>
+      <datalist id="ward-suggestions">
+        {% for suggestion in ward_suggestions %}
+          <option value="{{ suggestion.number }}" label="{{ suggestion.area.name }}" data-area="{{ suggestion.area_id }}"></option>
+        {% endfor %}
+      </datalist>
+      <p class="form-text">Ward suggestions are based on the records currently available. You can enter another ward number.</p>
+      {% include "partials/form_field.html" with field=form.street %}
+      <div class="row">
+        <div class="col-md-6">{% include "partials/form_field.html" with field=form.landmark %}</div>
+        <div class="col-md-6">{% include "partials/form_field.html" with field=form.building %}</div>
+      </div>
+      {% include "partials/form_field.html" with field=form.address_text %}
+
+      <div class="rp-subpanel">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <button type="button" class="btn btn-outline-rp btn-sm" id="use-location"><i class="ic ic-locate" aria-hidden="true"></i>Use my current location</button>
+          <button type="button" class="btn btn-link btn-sm" id="clear-location" hidden>Clear</button>
+          <span class="small text-secondary" id="gps-status" role="status" aria-live="polite">GPS is optional. Search, tap the map, or use your location to verify the service area.</span>
+        </div>
+        {{ form.latitude }}{{ form.longitude }}{{ form.location_token }}{{ form.location_source }}
+      </div>
+    </section>
+
+    <section class="rp-card rp-formsec">
+      <div class="rp-formsec-head"><span class="rp-stepno" aria-hidden="true">3</span>
+        <h2 class="rp-section">3. Photo<small>Helps the crew recognise the problem</small></h2></div>
+      {% if attempt.image %}<p class="small text-success mb-2">Your photo from the previous try is kept. Choose a new file only if you want to replace it.</p>{% endif %}
+      {% include "partials/form_field.html" with field=form.image %}
+      <div class="small text-danger" id="image-msg" role="alert"></div>
+    </section>
+
+    <div class="rp-form-actions">
+      <button class="btn btn-rp btn-lg" type="submit"><i class="ic ic-send" aria-hidden="true"></i>Submit complaint</button>
+      <a class="btn btn-link" href="{% url 'complaints:my_complaints' %}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/complaint_form.js' %}"></script>
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'js/location_picker.js' %}"></script>
+<script src="{% static 'js/ward_filter.js' %}"></script>{% endblock %}

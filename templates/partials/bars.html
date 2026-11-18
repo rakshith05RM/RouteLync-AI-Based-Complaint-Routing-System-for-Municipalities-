@@ -1,0 +1,9 @@
+{% if items %}
+<ul class="rp-bars list-unstyled mb-0">
+  {% for b in items %}
+  <li><span class="rp-bar-label">{{ b.label }}</span>
+    <span class="rp-bar-track" role="img" aria-label="{{ b.label }}: {{ b.value }}"><span class="rp-bar-fill" style="width:{{ b.percent }}%"></span></span>
+    <span class="rp-bar-value">{{ b.value }}{{ unit }}</span></li>
+  {% endfor %}
+</ul>
+{% else %}<p class="text-secondary small mb-0">No data yet.</p>{% endif %}

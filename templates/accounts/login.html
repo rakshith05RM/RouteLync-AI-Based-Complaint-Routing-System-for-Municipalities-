@@ -1,0 +1,42 @@
+{% extends "auth_base.html" %}
+{% block title %}Log in{% endblock %}
+{% block auth_pitch %}
+  <div class="rp-auth-pitch">
+    <h2>Stay in the loop with every report.</h2>
+    <p>Sign in to see who is handling each issue, what has changed, and what needs your attention next.</p>
+    <ul class="rp-auth-points">
+      <li><span class="rp-chip-ic"><i class="ic ic-bell" aria-hidden="true"></i></span><span>See the latest updates from the responsible team.</span></li>
+      <li><span class="rp-chip-ic"><i class="ic ic-map" aria-hidden="true"></i></span><span>Keep each report's location and progress together.</span></li>
+      <li><span class="rp-chip-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></span><span>Confirm a fix or reopen the issue if it remains.</span></li>
+    </ul>
+    <div class="rp-auth-route" aria-hidden="true">
+      <span class="rp-auth-route-label">PICK UP WHERE YOU LEFT OFF</span>
+      <div class="rp-auth-route-steps">
+        <span><i class="ic ic-pin" aria-hidden="true"></i>Report</span>
+        <span><i class="ic ic-arrow-right" aria-hidden="true"></i></span>
+        <span><i class="ic ic-bell" aria-hidden="true"></i>Updates</span>
+        <span><i class="ic ic-arrow-right" aria-hidden="true"></i></span>
+        <span><i class="ic ic-check-circle" aria-hidden="true"></i>Next step</span>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block content %}
+  <span class="rp-auth-kicker"><i class="ic ic-shield" aria-hidden="true"></i> Secure RouteLync access</span>
+  <div class="rp-auth-icon"><i class="ic ic-lock" aria-hidden="true"></i></div>
+  <h1>Welcome back</h1>
+  <p class="rp-auth-lead">Sign in to pick up where you left off and see the latest on your work.</p>
+  <form method="post" novalidate class="rp-card rp-auth-card">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn btn-rp w-100 mt-1" type="submit">Log in</button>
+    <div class="rp-auth-links">
+      <a href="{% url 'accounts:password_reset' %}">Forgot password?</a>
+      <a href="{% url 'accounts:register' %}">Create an account</a>
+    </div>
+  </form>
+  <p class="rp-auth-note"><i class="ic ic-check-circle" aria-hidden="true"></i>One account for citizens and city teams.</p>
+  <p class="rp-auth-alt"><a href="{% url 'core:home' %}"><i class="ic ic-arrow-left" aria-hidden="true"></i> Back to home</a></p>
+{% endblock %}

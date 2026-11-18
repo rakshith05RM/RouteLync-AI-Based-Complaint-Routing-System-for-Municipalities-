@@ -1,0 +1,31 @@
+{% extends "adminpanel/base_admin.html" %}
+{% block title %}Verification queue{% endblock %}
+{% block heading %}Verification queue{% endblock %}
+{% block admin_content %}
+<p class="rp-sub mb-4">These complaints were not routed automatically (low confidence, unrecognised wording, or the model was unavailable). Choose the department, or reject spam.</p>
+{% for complaint in complaints %}
+<section class="rp-card p-4 mb-3">
+  <div class="d-flex flex-wrap justify-content-between gap-2">
+    <div><a class="fw-semibold" href="{% url 'adminpanel:complaint' complaint.pk %}">{{ complaint.reference }}</a> &middot; {{ complaint.title }}
+      <div class="small text-secondary">{% if complaint.location.area %}{{ complaint.location.area.name }}{% else %}{{ complaint.location.address_text|truncatechars:50 }}{% endif %}{% if complaint.location.ward %}, Ward {{ complaint.location.ward.number }}{% endif %} &middot; submitted {{ complaint.created_at|date:"d M, H:i" }}
+        {% if complaint.sla_deadline < now %}<span class="text-danger fw-semibold">&middot; overdue</span>{% endif %}</div></div>
+    <div>{% include "partials/priority_badge.html" %}</div>
+  </div>
+  <p class="rp-text-block mt-3 mb-3">{{ complaint.description|truncatechars:400 }}</p>
+  <p class="small rp-note mb-3"><i class="ic ic-spark text-secondary" aria-hidden="true"></i> {% if complaint.predicted_department %}The model suggested <strong>{{ complaint.predicted_department.name }}</strong>{% if complaint.ai_confidence is not None %} with {% widthratio complaint.ai_confidence 1 100 %}% confidence{% endif %}.{% else %}The model made no suggestion{% if complaint.routing_reason %} ({{ complaint.routing_reason|cut:"_" }}){% endif %}.{% endif %}</p>
+  <form method="post" action="{% url 'adminpanel:route' complaint.pk %}" class="row g-3 align-items-end">
+    {% csrf_token %}
+    <div class="col-md-4"><label class="form-label" for="dept-{{ complaint.pk }}">Department</label>
+      <select name="department" id="dept-{{ complaint.pk }}" class="form-select form-select-sm" required>
+        <option value="">Choose a department</option>
+        {% for d in departments %}<option value="{{ d.pk }}" {% if d.pk == complaint.predicted_department_id %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-4"><div class="form-check"><input class="form-check-input" type="checkbox" name="add_to_training" id="train-{{ complaint.pk }}" checked><label class="form-check-label small" for="train-{{ complaint.pk }}">Use as a verified training example</label></div></div>
+    <div class="col-md-4"><button class="btn btn-rp btn-sm" type="submit"><i class="ic ic-send" aria-hidden="true"></i>Send to department</button></div>
+  </form>
+</section>
+{% empty %}
+<div class="rp-card rp-empty"><div class="rp-empty-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></div><p class="rp-empty-title">The queue is empty.</p><p class="text-secondary mb-0">Every complaint has been routed.</p></div>
+{% endfor %}
+{% if is_paginated %}<ul class="pagination pagination-sm">{% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}<li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>{% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}</ul>{% endif %}
+{% endblock %}

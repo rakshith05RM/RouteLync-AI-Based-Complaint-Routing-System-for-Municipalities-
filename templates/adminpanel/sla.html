@@ -1,0 +1,9 @@
+{% extends "adminpanel/base_admin.html" %}
+{% block title %}SLA settings{% endblock %}
+{% block heading %}SLA settings{% endblock %}
+{% block admin_content %}
+<form method="post" novalidate class="rp-card p-4" style="max-width:32.5rem">{% csrf_token %}{% include "partials/form_errors.html" %}
+  <p class="text-secondary small">The time allowed to resolve a complaint, counted from when it was submitted. Changes apply to complaints submitted from now on.</p>
+  {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+  <div class="rp-form-actions"><button class="btn btn-rp" type="submit">Save</button> <a class="btn btn-link" href="{% url 'adminpanel:departments' %}">Back</a></div></form>
+{% endblock %}

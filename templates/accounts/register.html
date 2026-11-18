@@ -1,0 +1,37 @@
+{% extends "auth_base.html" %}
+{% block title %}Register{% endblock %}
+{% block auth_box_class %} rp-auth-wide{% endblock %}
+{% block auth_pitch %}
+  <div class="rp-auth-pitch">
+    <h2>Start with a report. Stay for the resolution.</h2>
+    <p>Create an account to report local issues, follow city updates, and confirm completed work.</p>
+    <ul class="rp-auth-points">
+      <li><span class="rp-chip-ic"><i class="ic ic-pin" aria-hidden="true"></i></span><span>Add a location and helpful details to your first report.</span></li>
+      <li><span class="rp-chip-ic"><i class="ic ic-building" aria-hidden="true"></i></span><span>Follow progress from the team responsible for the issue.</span></li>
+      <li><span class="rp-chip-ic"><i class="ic ic-check-circle" aria-hidden="true"></i></span><span>Confirm the fix, or reopen the issue if it needs more work.</span></li>
+    </ul>
+    <div class="rp-auth-route" aria-hidden="true">
+      <span class="rp-auth-route-label">YOUR FIRST REPORT, STEP BY STEP</span>
+      <div class="rp-auth-route-steps">
+        <span><i class="ic ic-pin" aria-hidden="true"></i>Report</span>
+        <span><i class="ic ic-arrow-right" aria-hidden="true"></i></span>
+        <span><i class="ic ic-building" aria-hidden="true"></i>Route</span>
+        <span><i class="ic ic-arrow-right" aria-hidden="true"></i></span>
+        <span><i class="ic ic-check-circle" aria-hidden="true"></i>Resolve</span>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block content %}
+  <span class="rp-auth-kicker"><i class="ic ic-spark" aria-hidden="true"></i> Make your neighborhood heard</span>
+  <div class="rp-auth-icon"><i class="ic ic-user" aria-hidden="true"></i></div>
+  <h1>Create your account</h1>
+  <p class="rp-auth-lead">Report local problems and follow every update through to the fix. Already registered? <a href="{% url 'accounts:login' %}">Log in</a></p>
+  <form method="post" novalidate class="rp-card rp-auth-card">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+    <p class="rp-auth-verify-note"><i class="ic ic-mail" aria-hidden="true"></i>We'll email you a verification code to finish setting up your account.</p>
+    <button class="btn btn-rp w-100 mt-1" type="submit">Register</button>
+  </form>
+{% endblock %}

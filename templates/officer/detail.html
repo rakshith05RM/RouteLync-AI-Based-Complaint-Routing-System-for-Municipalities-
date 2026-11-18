@@ -1,0 +1,246 @@
+{% extends "officer/base_officer.html" %}
+{% load static %}
+{% block title %}{{ complaint.reference }}{% endblock %}
+{% block heading %}{{ complaint.reference }} &middot; {{ complaint.title }}{% endblock %}
+{% block extra_head %}{% if map_point %}<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">{% endif %}{% endblock %}
+{% block page_actions %}<div class="rp-page-actions">{% include "partials/status_badge_staff.html" %}{% include "partials/priority_badge.html" %}</div>{% endblock %}
+{% block officer_content %}
+<p class="rp-backlink"><a href="{% url 'officer:dashboard' %}"><i class="ic ic-arrow-left ic-sm" aria-hidden="true"></i> All complaints</a></p>
+
+{% if pending_resolution %}
+<section class="rp-card p-4 mb-4 rp-callout">
+  <h2 class="rp-section"><i class="ic ic-shield" aria-hidden="true"></i>Work completed &ndash; needs your verification</h2>
+  <p class="mb-1">{{ pending_resolution.resolved_by.full_name }} reported on {{ pending_resolution.resolved_at|date:"d M Y, H:i" }}:</p>
+  <p class="rp-text-block">{{ pending_resolution.remarks }}</p>
+  <div class="rp-photos mb-3">
+  {% for image in pending_resolution.images.all %}
+    <a class="rp-photo" href="{% url 'complaints:image' complaint.pk image.pk %}" target="_blank" rel="noopener"><img src="{% url 'complaints:image' complaint.pk image.pk %}" alt="Photo of the finished work" style="max-height:260px"></a>
+  {% endfor %}
+  </div>
+  <form method="post" action="{% url 'officer:review' complaint.pk %}" class="row g-3 align-items-end">
+    {% csrf_token %}
+    <div class="col-md-6"><label class="form-label" for="review-note">Note (required if sending back)</label>
+      <textarea id="review-note" name="note" rows="2" class="form-control form-control-sm" maxlength="255"></textarea></div>
+    <div class="col-md-6 d-flex gap-2">
+      <button class="btn btn-rp btn-sm" name="decision" value="approve" type="submit"><i class="ic ic-check" aria-hidden="true"></i>Approve</button>
+      <button class="btn btn-outline-rp btn-sm" name="decision" value="send_back" type="submit">Send back</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-8 rp-stack">
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-doc" aria-hidden="true"></i>Complaint</h2>
+      <p class="rp-text-block">{{ complaint.description }}</p>
+      <p class="small text-secondary mb-0">Submitted {{ complaint.created_at|date:"d M Y, H:i" }}</p>
+    </section>
+
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-pin" aria-hidden="true"></i>Location</h2>
+      {% with loc=complaint.location %}
+      <dl class="rp-dl mb-3">
+        <dt>Area / Ward</dt><dd>{% if loc.area %}{{ loc.area.name }}{% else %}<span class="text-secondary">Not provided</span>{% endif %}{% if loc.ward %}, Ward {{ loc.ward.number }}{% endif %}</dd>
+        {% if loc.street %}<dt>Street</dt><dd>{{ loc.street }}</dd>{% endif %}
+        {% if loc.landmark %}<dt>Landmark</dt><dd>{{ loc.landmark }}</dd>{% endif %}
+        {% if loc.building %}<dt>Building</dt><dd>{{ loc.building }}</dd>{% endif %}
+        <dt>Address</dt><dd>{{ loc.address_text }}</dd>
+        <dt>GPS</dt><dd>{% if loc.has_gps %}{{ loc.latitude }}, {{ loc.longitude }}{% else %}<span class="text-secondary">Not provided</span>{% endif %}</dd>
+      </dl>
+      {% endwith %}
+      {% if map_point %}<div id="complaint-map" class="rp-map rp-map-sm" data-lat="{{ map_point.lat }}" data-lng="{{ map_point.lng }}" data-priority="{{ complaint.priority }}" data-tile-url="{{ LOCATION_TILE_URL }}" data-tile-attribution="{{ LOCATION_TILE_ATTRIBUTION }}"></div>{% endif %}
+    </section>
+
+    {% if complaint.images.all %}
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-camera" aria-hidden="true"></i>Evidence</h2>
+      <div class="rp-photos">
+      {% for image in complaint.images.all %}
+        <a class="rp-photo" href="{% url 'complaints:image' complaint.pk image.pk %}" target="_blank" rel="noopener">
+          <img src="{% url 'complaints:image' complaint.pk image.pk %}" alt="Photo submitted with {{ complaint.reference }}" style="max-height:340px"></a>
+      {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if remarks %}
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Remarks</h2>
+      {% for r in remarks %}
+        <div class="rp-note">
+          <div class="rp-note-meta">{{ r.author.full_name|default:"Unknown" }} &middot; {{ r.created_at|date:"d M Y, H:i" }}
+            <span class="badge {% if r.visibility == 'PUBLIC' %}rp-term{% else %}rp-status{% endif %}">{{ r.get_visibility_display }}</span></div>
+          <div class="rp-text-block">{{ r.text }}</div>
+        </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% include "partials/duplicates_panel.html" with dups=duplicates detail_url_name="officer:detail" review_url_name="officer:duplicate_review" %}
+
+    {% if escalations %}
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-flag" aria-hidden="true"></i>Escalations</h2>
+      {% for e in escalations %}
+        <div class="rp-note"><div class="rp-note-meta">{{ e.created_at|date:"d M Y, H:i" }} &middot; to {{ e.get_level_display }}{% if e.escalated_to %} ({{ e.escalated_to.full_name }}){% endif %} &middot; {% if e.automatic %}automatic{% else %}by {{ e.triggered_by.full_name|default:"an officer" }}{% endif %}</div>
+          <div>{{ e.reason }}</div></div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if complaint.resolution_photo %}
+    <section class="rp-card p-4"><h2 class="rp-section"><i class="ic ic-check-circle" aria-hidden="true"></i>Proof of the completed work</h2>
+      <a class="rp-photo" href="{% url 'complaints:resolution_photo' complaint.pk %}" target="_blank" rel="noopener"><img src="{% url 'complaints:resolution_photo' complaint.pk %}" alt="Photo of the completed work" style="max-height:300px"></a></section>
+    {% endif %}
+    {% if feedback %}
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-star" aria-hidden="true"></i>Citizen feedback</h2>
+      <p class="mb-1"><span class="rp-stars" aria-label="{{ feedback.rating }} out of 5">{% for i in "12345" %}{% if forloop.counter <= feedback.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</span> <span class="text-secondary small">{{ feedback.rating }}/5 &middot; {{ feedback.created_at|date:"d M Y" }}</span></p>
+      {% if feedback.comment %}<p class="mb-0">{{ feedback.comment }}</p>{% endif %}
+    </section>
+    {% endif %}
+
+    {% if resolutions %}
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-repeat" aria-hidden="true"></i>Resolution attempts</h2>
+      {% for res in resolutions %}
+        <div class="rp-note">
+          <div class="rp-note-meta">{{ res.resolved_at|date:"d M Y, H:i" }} &middot; {{ res.resolved_by.full_name|default:"Unknown" }} &middot; <strong>{{ res.get_outcome_display }}</strong></div>
+          <div class="rp-text-block">{{ res.remarks }}</div>
+          {% if res.review_note %}<div class="small text-secondary mt-1">Officer note: {{ res.review_note }}</div>{% endif %}
+          {% if res.dispute_reason %}<div class="small text-secondary">Citizen: {{ res.dispute_reason }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-clock" aria-hidden="true"></i>History</h2>
+      <ol class="rp-path mb-0">
+        {% for entry in complaint.status_history.all %}
+          <li><strong>{{ entry.get_to_status_display }}</strong>
+            <span>{{ entry.timestamp|date:"d M Y, H:i" }} &middot; {% if entry.changed_by %}{{ entry.changed_by.full_name }}{% else %}System{% endif %}{% if entry.note %} &middot; {{ entry.note }}{% endif %}</span></li>
+        {% endfor %}
+      </ol>
+    </section>
+  </div>
+
+  <div class="col-lg-4 rp-stack">
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-activity" aria-hidden="true"></i>Status</h2>
+      <dl class="mb-0 rp-facts">
+        <dt>Status</dt><dd>{% include "partials/status_badge_staff.html" %}</dd>
+        <dt>Priority</dt><dd>{% include "partials/priority_badge.html" %}{% if complaint.priority_reason %}<span class="d-block small text-secondary">{{ complaint.priority_reason }}</span>{% endif %}</dd>
+        <dt>SLA deadline</dt>
+        <dd>{% if complaint.sla_deadline %}{{ complaint.sla_deadline|date:"d M Y, H:i" }}
+            {% if sla %}<span class="d-block small {% if sla.is_overdue %}text-danger fw-semibold{% else %}text-secondary{% endif %}">{{ sla.label }}</span>{% endif %}
+            {% else %}&ndash;{% endif %}</dd>
+        <dt>Department</dt><dd>{{ complaint.department.name }}</dd>
+        {% if complaint.escalation_level %}<dt>Escalation</dt><dd><span class="badge rp-escalated">Escalated to {% if complaint.escalation_level == 1 %}Department Head{% else %}Administrator{% endif %}</span></dd>{% endif %}
+        <dt>Assigned to</dt><dd>{% if assignment %}{{ assignment.assigned_to.full_name }}<span class="d-block small text-secondary">since {{ assignment.assigned_at|date:"d M Y, H:i" }}</span>{% else %}<span class="text-secondary">Unassigned</span>{% endif %}</dd>
+      </dl>
+    </section>
+
+    {% if can_assign or can_prioritise or can_reject or can_unassign or can_escalate %}
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-edit" aria-hidden="true"></i>Actions</h2>
+      {% if can_assign %}
+      <form method="post" action="{% url 'officer:assign' complaint.pk %}" class="pb-3 mb-3 border-bottom">
+        {% csrf_token %}
+        <label class="form-label" for="id_worker">{% if assignment %}Reassign to{% else %}Assign to field worker{% endif %}</label>
+        <select name="worker" id="id_worker" class="form-select form-select-sm mb-2" required>
+          {% for value, label in assign_form.fields.worker.choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+        <input type="text" name="note" maxlength="255" class="form-control form-control-sm mb-2" placeholder="Note for the worker (optional)" aria-label="Note for the worker (optional)">
+        <button class="btn btn-rp btn-sm" type="submit">{% if assignment %}Reassign{% else %}Assign{% endif %}</button>
+      </form>
+      {% endif %}
+      {% if can_unassign %}
+      <form method="post" action="{% url 'officer:unassign' complaint.pk %}" class="pb-3 mb-3 border-bottom">{% csrf_token %}
+        <button class="btn btn-outline-rp btn-sm" type="submit"><i class="ic ic-repeat" aria-hidden="true"></i>Return to queue</button></form>
+      {% endif %}
+      {% if can_prioritise %}
+      <form method="post" action="{% url 'officer:priority' complaint.pk %}" class="pb-3 mb-3 border-bottom">
+        {% csrf_token %}
+        <label class="form-label" for="id_priority">Change priority</label>
+        <select name="priority" id="id_priority" class="form-select form-select-sm mb-2">
+          {% for value, label in priority_form.fields.priority.choices %}<option value="{{ value }}" {% if value == complaint.priority %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <input type="text" name="reason" maxlength="100" required class="form-control form-control-sm mb-2" placeholder="Reason" aria-label="Reason">
+        <button class="btn btn-outline-rp btn-sm" type="submit">Update priority</button>
+      </form>
+      {% endif %}
+      {% if can_escalate %}
+      <form method="post" action="{% url 'officer:escalate' complaint.pk %}" class="pb-3 mb-3 border-bottom">
+        {% csrf_token %}
+        <label class="form-label" for="id_escalate_reason">{{ escalate_label }}</label>
+        <input type="text" name="reason" id="id_escalate_reason" maxlength="150" required class="form-control form-control-sm mb-2" placeholder="Why does this need attention?">
+        <button class="btn btn-outline-rp btn-sm" type="submit"><i class="ic ic-flag" aria-hidden="true"></i>Escalate</button>
+      </form>
+      {% endif %}
+      {% if can_reject %}
+      <form method="post" action="{% url 'officer:reject' complaint.pk %}" data-confirm="Reject this complaint? The citizen will be told the reason.">
+        {% csrf_token %}
+        <label class="form-label" for="id_reject_reason">Reject complaint</label>
+        <textarea name="reason" id="id_reject_reason" rows="2" maxlength="200" required class="form-control form-control-sm mb-2" placeholder="Reason shown to the citizen"></textarea>
+        <button class="btn btn-outline-danger btn-sm" type="submit">Reject</button>
+      </form>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-message" aria-hidden="true"></i>Add a remark</h2>
+      <form method="post" action="{% url 'officer:remark' complaint.pk %}">
+        {% csrf_token %}
+        <textarea name="text" rows="3" maxlength="1000" required class="form-control form-control-sm mb-2" aria-label="Remark"></textarea>
+        <select name="visibility" class="form-select form-select-sm mb-2" aria-label="Who can see it">
+          {% for value, label in remark_form.fields.visibility.choices %}<option value="{{ value }}" {% if value == "INTERNAL" %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-outline-rp btn-sm" type="submit">Add remark</button>
+      </form>
+    </section>
+
+    <section class="rp-card p-4">
+      <h2 class="rp-section"><i class="ic ic-user" aria-hidden="true"></i>Citizen</h2>
+      <dl class="mb-0 rp-facts">
+        <dt>Name</dt><dd>{{ complaint.citizen.full_name }}</dd>
+        {% if complaint.citizen.phone %}<dt>Mobile</dt><dd>{{ complaint.citizen.phone }}</dd>{% endif %}
+      </dl>
+    </section>
+
+    <section class="rp-card p-4 rp-ai-panel">
+      <h2 class="rp-section"><i class="ic ic-spark" aria-hidden="true"></i>AI routing</h2>
+      {% if complaint.ai_model %}
+      <dl class="mb-3 rp-facts">
+        <dt>Predicted department</dt><dd>{{ complaint.predicted_department.name }}</dd>
+        <dt>Confidence</dt><dd>{% widthratio complaint.ai_confidence 1 100 %}%</dd>
+        <dt>Model</dt><dd>Version {{ complaint.ai_model.version }}</dd>
+        <dt>Predicted</dt><dd>{{ complaint.ai_predicted_at|date:"d M Y, H:i" }}</dd>
+        <dt>Routed</dt><dd>{{ complaint.get_routing_method_display }}</dd>
+      </dl>
+      {% if complaint.predicted_department_id != complaint.department_id %}
+        <p class="small text-secondary">The model suggested {{ complaint.predicted_department.name|default:"no department" }}; an administrator routed this complaint to {{ complaint.department.name }}.</p>
+      {% endif %}
+      {% if probabilities %}
+        {% for p in probabilities %}
+        <div class="rp-prob">
+          <div class="rp-prob-row"><span>{{ p.label }}</span><span>{{ p.percent }}%</span></div>
+          <div class="progress" role="img" aria-label="{{ p.label }} {{ p.percent }} percent"><div class="progress-bar" style="width:{{ p.percent }}%"></div></div>
+        </div>
+        {% endfor %}
+      {% endif %}
+      {% if complaint.ai_terms %}
+        <h3 class="h6 mt-3 mb-1">Influential terms</h3>
+        <p class="small text-secondary mb-2">Words that pushed the model toward its answer, compared with the next most likely department.</p>
+        <p class="rp-chips mb-0">{% for t in complaint.ai_terms %}<span class="badge rp-term">{{ t.term }}</span> {% endfor %}</p>
+      {% endif %}
+      {% else %}
+        <p class="mb-0 text-secondary">{% if complaint.routing_method == "MANUAL" %}This complaint was routed by an administrator.{% else %}No AI prediction was recorded for this complaint.{% endif %}</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}{% if map_point %}<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script><script src="{% static 'js/complaint_map.js' %}"></script>{% endif %}{% endblock %}

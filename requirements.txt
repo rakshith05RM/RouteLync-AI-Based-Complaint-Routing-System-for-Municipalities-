@@ -1,0 +1,18 @@
+# --- Web framework ---
+Django>=5.2,<5.3
+python-dotenv>=1.0
+
+# --- Database driver (MySQL) ---
+# Preferred. On Windows, if installation fails, comment this out and use PyMySQL below.
+mysqlclient>=2.2
+# PyMySQL>=1.1     # fallback driver; see routelync/__init__.py note
+
+# --- Images (validated uploads; used from Phase 4) ---
+Pillow>=10.0
+
+# --- Machine learning / NLP (used from Phase 5) ---
+scikit-learn>=1.4
+pandas>=2.1
+numpy>=1.26
+nltk>=3.8
+joblib>=1.3

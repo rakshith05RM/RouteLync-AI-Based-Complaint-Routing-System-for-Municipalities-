@@ -1,0 +1,43 @@
+{% extends "base_app.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content_class %} rp-content-narrow{% endblock %}
+{% block content %}
+  <div class="rp-page-head">
+    <div>
+      <p class="rp-eyebrow">Account</p>
+      <h1 class="rp-title">Notifications</h1>
+    </div>
+    {% if unread_notification_count %}
+    <div class="rp-page-actions">
+      <form method="post" action="{% url 'notifications:read_all' %}">{% csrf_token %}
+        <button class="btn btn-outline-rp btn-sm" type="submit"><i class="ic ic-check" aria-hidden="true"></i>Mark all as read</button></form>
+    </div>
+    {% endif %}
+  </div>
+  {% if notifications %}
+  <div class="rp-card overflow-hidden">
+    <ul class="list-group list-group-flush">
+      {% for n in notifications %}
+      <li class="list-group-item d-flex justify-content-between align-items-start gap-3 py-3 px-4 {% if not n.is_read %}rp-unread{% endif %}">
+        <div>
+          <a href="{% url 'notifications:open' n.pk %}" class="{% if not n.is_read %}fw-semibold{% endif %}">{{ n.message }}</a>
+          <div class="small text-secondary mt-1"><i class="ic ic-clock ic-sm" aria-hidden="true"></i> {{ n.created_at|date:"d M Y, H:i" }}</div>
+        </div>
+        {% if not n.is_read %}<span class="badge rp-await align-self-center">New</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% if is_paginated %}
+  <nav class="mt-3" aria-label="Pages"><ul class="pagination pagination-sm">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.previous_page_number %}">Previous</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="{% querystring page=page_obj.next_page_number %}">Next</a></li>{% endif %}
+  </ul></nav>
+  {% endif %}
+  {% else %}
+  <div class="rp-card rp-empty"><div class="rp-empty-ic"><i class="ic ic-bell" aria-hidden="true"></i></div>
+    <p class="rp-empty-title">You have no notifications.</p>
+    <p class="text-secondary">Updates about your complaints will appear here.</p></div>
+  {% endif %}
+{% endblock %}

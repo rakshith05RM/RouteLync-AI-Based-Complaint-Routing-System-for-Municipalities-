@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Please try again{% endblock %}
+{% block content %}
+<div class="rp-error">
+  <div class="rp-error-inner">
+    <p class="rp-errcode">403</p>
+    <h1>Your session expired</h1>
+    <p>The form was open for too long, or your browser blocked a security token. Go back, reload the page and send it again. Nothing was saved.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+      <a class="btn btn-rp" href="/"><i class="ic ic-home" aria-hidden="true"></i>Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

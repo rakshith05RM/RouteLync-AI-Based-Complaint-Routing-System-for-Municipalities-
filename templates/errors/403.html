@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Access denied{% endblock %}
+{% block content %}
+<div class="rp-error">
+  <div class="rp-error-inner">
+    <p class="rp-errcode">403</p>
+    <h1>Access denied</h1>
+    <p>You do not have permission to open this page. If you think this is a mistake, contact your administrator.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+      <a class="btn btn-rp" href="/"><i class="ic ic-home" aria-hidden="true"></i>Back to home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

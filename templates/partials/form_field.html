@@ -1,0 +1,3 @@
+{% load form_tags %}
+{% if field.field.widget.input_type == "select" %}{% with css="form-select" %}{% include "partials/_field_body.html" %}{% endwith %}
+{% else %}{% with css="form-control" %}{% include "partials/_field_body.html" %}{% endwith %}{% endif %}
